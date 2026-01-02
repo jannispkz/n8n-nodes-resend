@@ -938,21 +938,6 @@ export class Resend implements INodeType {
 
 			// BROADCAST PROPERTIES
 			{
-				displayName: 'Broadcast Name',
-				name: 'broadcastName',
-				type: 'string',
-				required: true,
-				default: '',
-				placeholder: 'My Newsletter',
-				displayOptions: {
-					show: {
-						resource: ['broadcasts'],
-						operation: ['create'],
-					},
-				},
-				description: 'The name of the broadcast',
-			},
-			{
 				displayName: 'Broadcast ID',
 				name: 'broadcastId',
 				type: 'string',
@@ -968,64 +953,81 @@ export class Resend implements INodeType {
 				description: 'The ID of the broadcast',
 			},
 			{
-				displayName: 'Audience ID',
-				name: 'audienceId',
+				displayName: 'Segment ID',
+				name: 'segmentId',
 				type: 'string',
 				required: true,
 				default: '',
-				placeholder: 'aud_123456',
+				placeholder: 'seg_123456',
 				displayOptions: {
 					show: {
 						resource: ['broadcasts'],
 						operation: ['create'],
 					},
 				},
-				description: 'The ID of the audience for this broadcast',
+				description: 'The ID of the segment for this broadcast',
 			},
 			{
-				displayName: 'Broadcast Content',
-				name: 'broadcastContent',
+				displayName: 'From',
+				name: 'broadcastFrom',
+				type: 'string',
+				required: true,
+				default: '',
+				placeholder: 'you@example.com',
+				displayOptions: {
+					show: {
+						resource: ['broadcasts'],
+						operation: ['create'],
+					},
+				},
+				description: 'Sender email address. To include a friendly name, use the format "Your Name <sender@domain.com>".',
+			},
+			{
+				displayName: 'Subject',
+				name: 'broadcastSubject',
+				type: 'string',
+				required: true,
+				default: '',
+				placeholder: 'Newsletter Subject',
+				displayOptions: {
+					show: {
+						resource: ['broadcasts'],
+						operation: ['create'],
+					},
+				},
+				description: 'Email subject',
+			},
+			{
+				displayName: 'HTML Content',
+				name: 'broadcastHtml',
+				type: 'string',
+				required: true,
+				default: '',
+				typeOptions: {
+					multiline: true,
+				},
+				placeholder: '<p>Your HTML content here with {{{FIRST_NAME|there}}} and {{{RESEND_UNSUBSCRIBE_URL}}}</p>',
+				displayOptions: {
+					show: {
+						resource: ['broadcasts'],
+						operation: ['create'],
+					},
+				},
+				description: 'The HTML version of the message. You can use variables like {{{FIRST_NAME|fallback}}} and {{{RESEND_UNSUBSCRIBE_URL}}}.',
+			},
+			{
+				displayName: 'Create Options',
+				name: 'broadcastCreateOptions',
 				type: 'collection',
-				placeholder: 'Add Content',
+				placeholder: 'Add Option',
 				default: {},
 				displayOptions: {
 					show: {
 						resource: ['broadcasts'],
-						operation: ['create', 'update'],
+						operation: ['create'],
 					},
-				}, options: [
-					{
-						displayName: 'Audience ID',
-						name: 'audience_id',
-						type: 'string',
-						default: '',
-						placeholder: 'aud_123456',
-						displayOptions: {
-							show: {
-								'/operation': ['update'],
-							},
-						},
-						description: 'The ID of the audience you want to send to (for update operation)',
-					},
-					{
-						displayName: 'From',
-						name: 'from',
-						type: 'string',
-						default: '',
-						placeholder: 'you@example.com',
-						description: 'Sender email address. To include a friendly name, use the format &quot;Your Name &lt;sender@domain.com&gt;&quot;.',
-					},
-					{
-						displayName: 'HTML Content',
-						name: 'html',
-						type: 'string',
-						default: '',
-						typeOptions: {
-							multiline: true,
-						},
-						placeholder: '<p>Your HTML content here with {{{FIRST_NAME|there}}} and {{{RESEND_UNSUBSCRIBE_URL}}}</p>',
-						description: 'The HTML version of the message. You can use variables like {{{FIRST_NAME|fallback}}} and {{{RESEND_UNSUBSCRIBE_URL}}}.',
-					},
+				},
+				options: [
 					{
 						displayName: 'Name',
 						name: 'name',
@@ -1043,11 +1045,73 @@ export class Resend implements INodeType {
 						description: 'Reply-to email address. For multiple addresses, use comma-separated values.',
 					},
 					{
+						displayName: 'Text Content',
+						name: 'text',
+						type: 'string',
+						default: '',
+						typeOptions: {
+							multiline: true,
+						},
+						placeholder: 'Your plain text content here',
+						description: 'The plain text version of the message',
+					},
+					{
+						displayName: 'Topic ID',
+						name: 'topic_id',
+						type: 'string',
+						default: '',
+						placeholder: 'topic_123456',
+						description: 'Topic ID that the broadcast will be scoped to',
+					},
+				],
+			},
+			{
+				displayName: 'Update Fields',
+				name: 'broadcastUpdateFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['broadcasts'],
+						operation: ['update'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Segment ID',
+						name: 'segment_id',
+						type: 'string',
+						default: '',
+						placeholder: 'seg_123456',
+						description: 'The ID of the segment you want to send to',
+					},
+					{
+						displayName: 'From',
+						name: 'from',
+						type: 'string',
+						default: '',
+						placeholder: 'you@example.com',
+						description: 'Sender email address',
+					},
+					{
 						displayName: 'Subject',
 						name: 'subject',
-						type: 'string', default: '',
+						type: 'string',
+						default: '',
 						placeholder: 'Newsletter Subject',
 						description: 'Email subject',
+					},
+					{
+						displayName: 'HTML Content',
+						name: 'html',
+						type: 'string',
+						default: '',
+						typeOptions: {
+							multiline: true,
+						},
+						placeholder: '<p>Your HTML content here</p>',
+						description: 'The HTML version of the message',
 					},
 					{
 						displayName: 'Text Content',
@@ -1059,6 +1123,53 @@ export class Resend implements INodeType {
 						},
 						placeholder: 'Your plain text content here',
 						description: 'The plain text version of the message',
+					},
+					{
+						displayName: 'Reply To',
+						name: 'reply_to',
+						type: 'string',
+						default: '',
+						placeholder: 'noreply@example.com',
+						description: 'Reply-to email address. For multiple addresses, use comma-separated values.',
+					},
+					{
+						displayName: 'Name',
+						name: 'name',
+						type: 'string',
+						default: '',
+						placeholder: 'Internal broadcast name',
+						description: 'The friendly name of the broadcast. Only used for internal reference.',
+					},
+					{
+						displayName: 'Topic ID',
+						name: 'topic_id',
+						type: 'string',
+						default: '',
+						placeholder: 'topic_123456',
+						description: 'Topic ID that the broadcast will be scoped to',
+					},
+				],
+			},
+			{
+				displayName: 'Send Options',
+				name: 'broadcastSendOptions',
+				type: 'collection',
+				placeholder: 'Add Option',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['broadcasts'],
+						operation: ['send'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Scheduled At',
+						name: 'scheduled_at',
+						type: 'string',
+						default: '',
+						placeholder: 'in 1 min',
+						description: 'Schedule the broadcast to be sent later (natural language or ISO 8601).',
 					},
 				],
 			},
@@ -2076,22 +2187,39 @@ export class Resend implements INodeType {
 					// BROADCAST OPERATIONS
 				} else if (resource === 'broadcasts') {
 					if (operation === 'create') {
-						const broadcastName = this.getNodeParameter('broadcastName', i) as string;
-						const audienceId = this.getNodeParameter('audienceId', i) as string;
-						const broadcastContent = this.getNodeParameter('broadcastContent', i, {}) as any;
+						const segmentId = this.getNodeParameter('segmentId', i) as string;
+						const broadcastFrom = this.getNodeParameter('broadcastFrom', i) as string;
+						const broadcastSubject = this.getNodeParameter('broadcastSubject', i) as string;
+						const broadcastHtml = this.getNodeParameter('broadcastHtml', i) as string;
+						const createOptions = this.getNodeParameter('broadcastCreateOptions', i, {}) as any;
 
 						const requestBody: any = {
-							name: broadcastName,
-							audience_id: audienceId,
+							segment_id: segmentId,
+							from: broadcastFrom,
+							subject: broadcastSubject,
+							html: broadcastHtml,
 						};
 
-						// Add optional content fields for create operation
-						if (broadcastContent.from) requestBody.from = broadcastContent.from;
-						if (broadcastContent.subject) requestBody.subject = broadcastContent.subject;
-						if (broadcastContent.reply_to) requestBody.reply_to = broadcastContent.reply_to;
-						if (broadcastContent.html) requestBody.html = broadcastContent.html;
-						if (broadcastContent.text) requestBody.text = broadcastContent.text;
-						if (broadcastContent.name) requestBody.name = broadcastContent.name;
+						if (createOptions.name) requestBody.name = createOptions.name;
+						if (createOptions.reply_to) {
+							if (Array.isArray(createOptions.reply_to)) {
+								requestBody.reply_to = createOptions.reply_to;
+							} else if (
+								typeof createOptions.reply_to === 'string' &&
+								createOptions.reply_to.includes(',')
+							) {
+								requestBody.reply_to = createOptions.reply_to
+									.split(',')
+									.map((email: string) => email.trim())
+									.filter((email: string) => email);
+							} else {
+								requestBody.reply_to = createOptions.reply_to;
+							}
+						}
+						if (Object.prototype.hasOwnProperty.call(createOptions, 'text')) {
+							requestBody.text = createOptions.text;
+						}
+						if (createOptions.topic_id) requestBody.topic_id = createOptions.topic_id;
 
 						response = await this.helpers.httpRequest({
 							url: 'https://api.resend.com/broadcasts',
@@ -2117,16 +2245,33 @@ export class Resend implements INodeType {
 						});
 					} else if (operation === 'update') {
 						const broadcastId = this.getNodeParameter('broadcastId', i) as string;
-						const broadcastContent = this.getNodeParameter('broadcastContent', i, {}) as any;
+						const updateFields = this.getNodeParameter('broadcastUpdateFields', i, {}) as any;
 
 						const requestBody: any = {};
-						if (broadcastContent.audience_id) requestBody.audience_id = broadcastContent.audience_id;
-						if (broadcastContent.from) requestBody.from = broadcastContent.from;
-						if (broadcastContent.subject) requestBody.subject = broadcastContent.subject;
-						if (broadcastContent.reply_to) requestBody.reply_to = broadcastContent.reply_to;
-						if (broadcastContent.html) requestBody.html = broadcastContent.html;
-						if (broadcastContent.text) requestBody.text = broadcastContent.text;
-						if (broadcastContent.name) requestBody.name = broadcastContent.name;
+						if (updateFields.segment_id) requestBody.segment_id = updateFields.segment_id;
+						if (updateFields.from) requestBody.from = updateFields.from;
+						if (updateFields.subject) requestBody.subject = updateFields.subject;
+						if (updateFields.html) requestBody.html = updateFields.html;
+						if (Object.prototype.hasOwnProperty.call(updateFields, 'text')) {
+							requestBody.text = updateFields.text;
+						}
+						if (updateFields.reply_to) {
+							if (Array.isArray(updateFields.reply_to)) {
+								requestBody.reply_to = updateFields.reply_to;
+							} else if (
+								typeof updateFields.reply_to === 'string' &&
+								updateFields.reply_to.includes(',')
+							) {
+								requestBody.reply_to = updateFields.reply_to
+									.split(',')
+									.map((email: string) => email.trim())
+									.filter((email: string) => email);
+							} else {
+								requestBody.reply_to = updateFields.reply_to;
+							}
+						}
+						if (updateFields.name) requestBody.name = updateFields.name;
+						if (updateFields.topic_id) requestBody.topic_id = updateFields.topic_id;
 
 						response = await this.helpers.httpRequest({
 							url: `https://api.resend.com/broadcasts/${broadcastId}`,
@@ -2141,6 +2286,12 @@ export class Resend implements INodeType {
 
 					} else if (operation === 'send') {
 						const broadcastId = this.getNodeParameter('broadcastId', i) as string;
+						const sendOptions = this.getNodeParameter('broadcastSendOptions', i, {}) as any;
+						const requestBody: any = {};
+
+						if (sendOptions.scheduled_at) {
+							requestBody.scheduled_at = sendOptions.scheduled_at;
+						}
 
 						response = await this.helpers.httpRequest({
 							url: `https://api.resend.com/broadcasts/${broadcastId}/send`,
@@ -2149,7 +2300,7 @@ export class Resend implements INodeType {
 								Authorization: `Bearer ${apiKey}`,
 								'Content-Type': 'application/json',
 							},
-							body: {},
+							body: requestBody,
 							json: true,
 						});
 
