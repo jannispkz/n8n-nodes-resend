@@ -14,7 +14,7 @@ export class Resend implements INodeType {
 		icon: 'file:resend-icon-white.svg',
 		group: ['output'],
 		version: 1,
-		description: 'Interact with Resend API for emails, domains, API keys, broadcasts, audiences, and contacts',
+		description: 'Interact with Resend API for emails, templates, domains, API keys, broadcasts, audiences, and contacts',
 		defaults: {
 			name: 'Resend',
 		},
@@ -62,6 +62,11 @@ export class Resend implements INodeType {
 						name: 'Email',
 						value: 'email',
 						description: 'Send and manage emails',
+					},
+					{
+						name: 'Template',
+						value: 'templates',
+						description: 'Manage email templates',
 					},
 				],
 				default: 'email',
@@ -443,6 +448,314 @@ export class Resend implements INodeType {
 					},
 				},
 				description: 'Schedule email to be sent later. The date should be in ISO 8601 format (e.g., 2024-08-05T11:52:01.858Z).',
+			},
+
+			// TEMPLATE PROPERTIES
+			{
+				displayName: 'Name',
+				name: 'templateName',
+				type: 'string',
+				required: true,
+				default: '',
+				placeholder: 'order-confirmation',
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+						operation: ['create'],
+					},
+				},
+				description: 'The name of the template',
+			},
+			{
+				displayName: 'From',
+				name: 'templateFrom',
+				type: 'string',
+				required: true,
+				default: '',
+				placeholder: 'Resend Store <store@resend.com>',
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+						operation: ['create'],
+					},
+				},
+				description: 'Sender email address. To include a friendly name, use the format "Your Name <sender@domain.com>".',
+			},
+			{
+				displayName: 'Subject',
+				name: 'templateSubject',
+				type: 'string',
+				required: true,
+				default: '',
+				placeholder: 'Thanks for your order!',
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+						operation: ['create'],
+					},
+				},
+				description: 'Default subject line for the template',
+			},
+			{
+				displayName: 'HTML Content',
+				name: 'templateHtml',
+				type: 'string',
+				required: true,
+				default: '',
+				typeOptions: {
+					multiline: true,
+					rows: 4,
+				},
+				placeholder: '<p>Name: {{{PRODUCT}}}</p><p>Total: {{{PRICE}}}</p>',
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+						operation: ['create'],
+					},
+				},
+				description: 'HTML version of the template',
+			},
+			{
+				displayName: 'Template Variables',
+				name: 'templateVariables',
+				type: 'fixedCollection',
+				default: { variables: [] },
+				typeOptions: {
+					multipleValues: true,
+				},
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+						operation: ['create', 'update'],
+					},
+				},
+				description: 'Define variables used in the template',
+				options: [
+					{
+						name: 'variables',
+						displayName: 'Variable',
+						values: [
+							{
+								displayName: 'Key',
+								name: 'key',
+								type: 'string',
+								required: true,
+								default: '',
+								description: 'Variable name (we recommend uppercase, e.g. PRODUCT)',
+							},
+							{
+								displayName: 'Type',
+								name: 'type',
+								type: 'options',
+								default: 'string',
+								options: [
+									{ name: 'String', value: 'string' },
+									{ name: 'Number', value: 'number' },
+								],
+								description: 'Variable data type',
+							},
+							{
+								displayName: 'Fallback Value',
+								name: 'fallbackValue',
+								type: 'string',
+								default: '',
+								description: 'Fallback value used when a variable is not provided',
+							},
+						],
+					},
+				],
+			},
+			{
+				displayName: 'Template ID',
+				name: 'templateId',
+				type: 'string',
+				required: true,
+				default: '',
+				placeholder: '34a080c9-b17d-4187-ad80-5af20266e535',
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+						operation: ['get', 'update', 'delete', 'send'],
+					},
+				},
+				description: 'The ID or alias of the template',
+			},
+			{
+				displayName: 'Update Fields',
+				name: 'templateUpdateFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+						operation: ['update'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Alias',
+						name: 'alias',
+						type: 'string',
+						default: '',
+						description: 'Template alias',
+					},
+					{
+						displayName: 'From',
+						name: 'from',
+						type: 'string',
+						default: '',
+						description: 'Sender email address',
+					},
+					{
+						displayName: 'HTML Content',
+						name: 'html',
+						type: 'string',
+						default: '',
+						typeOptions: {
+							multiline: true,
+							rows: 4,
+						},
+						description: 'HTML content of the template',
+					},
+					{
+						displayName: 'Name',
+						name: 'name',
+						type: 'string',
+						default: '',
+						description: 'Template name',
+					},
+					{
+						displayName: 'Reply To',
+						name: 'reply_to',
+						type: 'string',
+						default: '',
+						description: 'Reply-to email address. For multiple addresses, use comma-separated values.',
+					},
+					{
+						displayName: 'Subject',
+						name: 'subject',
+						type: 'string',
+						default: '',
+						description: 'Default subject line for the template',
+					},
+					{
+						displayName: 'Text Content',
+						name: 'text',
+						type: 'string',
+						default: '',
+						typeOptions: {
+							multiline: true,
+							rows: 4,
+						},
+						description: 'Plain text content. Set to an empty string to disable automatic plain text generation.',
+					},
+				],
+			},
+			{
+				displayName: 'List Options',
+				name: 'templateListOptions',
+				type: 'collection',
+				placeholder: 'Add Option',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+						operation: ['list'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Limit',
+						name: 'limit',
+						type: 'number',
+						default: 20,
+						description: 'Max number of templates to return (1-100)',
+					},
+					{
+						displayName: 'After',
+						name: 'after',
+						type: 'string',
+						default: '',
+						description: 'Return results after this template ID',
+					},
+					{
+						displayName: 'Before',
+						name: 'before',
+						type: 'string',
+						default: '',
+						description: 'Return results before this template ID',
+					},
+				],
+			},
+			{
+				displayName: 'From',
+				name: 'templateSendFrom',
+				type: 'string',
+				required: true,
+				default: '',
+				placeholder: 'Acme <onboarding@resend.dev>',
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+						operation: ['send'],
+					},
+				},
+				description: 'Sender email address',
+			},
+			{
+				displayName: 'To',
+				name: 'templateSendTo',
+				type: 'string',
+				required: true,
+				default: '',
+				placeholder: 'delivered@resend.dev',
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+						operation: ['send'],
+					},
+				},
+				description: 'Recipient email address. For multiple addresses, separate with commas.',
+			},
+			{
+				displayName: 'Template Variables',
+				name: 'templateSendVariables',
+				type: 'fixedCollection',
+				default: { variables: [] },
+				typeOptions: {
+					multipleValues: true,
+				},
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+						operation: ['send'],
+					},
+				},
+				description: 'Variables to render the template with',
+				options: [
+					{
+						name: 'variables',
+						displayName: 'Variable',
+						values: [
+							{
+								displayName: 'Key',
+								name: 'key',
+								type: 'string',
+								required: true,
+								default: '',
+								description: 'Template variable name',
+							},
+							{
+								displayName: 'Value',
+								name: 'value',
+								type: 'string',
+								default: '',
+								description: 'Value for the template variable',
+							},
+						],
+					},
+				],
 			},
 
 			// DOMAIN PROPERTIES
@@ -909,6 +1222,58 @@ export class Resend implements INodeType {
 				],
 			},
 
+			// TEMPLATE OPERATIONS
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+					},
+				},
+				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a new template',
+						action: 'Create a template',
+					},
+					{
+						name: 'Delete',
+						value: 'delete',
+						description: 'Delete a template',
+						action: 'Delete a template',
+					},
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a template by ID',
+						action: 'Get a template',
+					},
+					{
+						name: 'List',
+						value: 'list',
+						description: 'List all templates',
+						action: 'List templates',
+					},
+					{
+						name: 'Send',
+						value: 'send',
+						description: 'Send an email using a template',
+						action: 'Send a template email',
+					},
+					{
+						name: 'Update',
+						value: 'update',
+						description: 'Update a template',
+						action: 'Update a template',
+					},
+				],
+				default: 'list',
+			},
+
 			// DOMAIN OPERATIONS
 			{
 				displayName: 'Operation',
@@ -1138,6 +1503,57 @@ export class Resend implements INodeType {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
 		const length = items.length;
+		const parseTemplateVariables = (
+			variablesInput: { variables?: Array<{ key: string; type: string; fallbackValue?: unknown }> } | undefined,
+			fallbackKey: 'fallbackValue' | 'fallback_value',
+			itemIndex: number,
+		) => {
+			if (!variablesInput?.variables?.length) {
+				return undefined;
+			}
+
+			return variablesInput.variables.map((variable) => {
+				const variableEntry: Record<string, unknown> = {
+					key: variable.key,
+					type: variable.type,
+				};
+
+				const fallbackValue = variable.fallbackValue;
+				if (fallbackValue !== undefined && fallbackValue !== '') {
+					let parsedFallback: string | number = fallbackValue as string;
+					if (variable.type === 'number') {
+						const numericFallback = typeof fallbackValue === 'number' ? fallbackValue : Number(fallbackValue);
+						if (Number.isNaN(numericFallback)) {
+							throw new NodeOperationError(
+								this.getNode(),
+								`Variable "${variable.key}" fallback value must be a number`,
+								{ itemIndex },
+							);
+						}
+						parsedFallback = numericFallback;
+					}
+					variableEntry[fallbackKey] = parsedFallback;
+				}
+
+				return variableEntry;
+			});
+		};
+		const buildTemplateSendVariables = (
+			variablesInput: { variables?: Array<{ key: string; value?: unknown }> } | undefined,
+		) => {
+			if (!variablesInput?.variables?.length) {
+				return undefined;
+			}
+
+			const variables: Record<string, unknown> = {};
+			for (const variable of variablesInput.variables) {
+				if (variable.key) {
+					variables[variable.key] = variable.value ?? '';
+				}
+			}
+
+			return Object.keys(variables).length ? variables : undefined;
+		};
 
 		for (let i = 0; i < length; i++) {
 			try {
@@ -1291,6 +1707,172 @@ export class Resend implements INodeType {
 								'Content-Type': 'application/json',
 							},
 							body: {},
+							json: true,
+						});
+					}
+
+					// TEMPLATE OPERATIONS
+				} else if (resource === 'templates') {
+					if (operation === 'create') {
+						const templateName = this.getNodeParameter('templateName', i) as string;
+						const templateFrom = this.getNodeParameter('templateFrom', i) as string;
+						const templateSubject = this.getNodeParameter('templateSubject', i) as string;
+						const templateHtml = this.getNodeParameter('templateHtml', i) as string;
+						const templateVariables = this.getNodeParameter('templateVariables', i, {}) as any;
+
+						const requestBody: any = {
+							name: templateName,
+							from: templateFrom,
+							subject: templateSubject,
+							html: templateHtml,
+						};
+
+						const variables = parseTemplateVariables(templateVariables, 'fallbackValue', i);
+						if (variables?.length) {
+							requestBody.variables = variables;
+						}
+
+						response = await this.helpers.httpRequest({
+							url: 'https://api.resend.com/templates',
+							method: 'POST',
+							headers: {
+								Authorization: `Bearer ${apiKey}`,
+								'Content-Type': 'application/json',
+							},
+							body: requestBody,
+							json: true,
+						});
+					} else if (operation === 'get') {
+						const templateId = this.getNodeParameter('templateId', i) as string;
+
+						response = await this.helpers.httpRequest({
+							url: `https://api.resend.com/templates/${templateId}`,
+							method: 'GET',
+							headers: {
+								Authorization: `Bearer ${apiKey}`,
+							},
+							json: true,
+						});
+					} else if (operation === 'list') {
+						const listOptions = this.getNodeParameter('templateListOptions', i, {}) as any;
+						const qs: Record<string, string | number> = {};
+
+						if (listOptions.after && listOptions.before) {
+							throw new NodeOperationError(
+								this.getNode(),
+								'You can only use either "After" or "Before", not both.',
+								{ itemIndex: i },
+							);
+						}
+
+						if (listOptions.limit !== undefined) {
+							qs.limit = listOptions.limit;
+						}
+						if (listOptions.after) {
+							qs.after = listOptions.after;
+						}
+						if (listOptions.before) {
+							qs.before = listOptions.before;
+						}
+
+						response = await this.helpers.httpRequest({
+							url: 'https://api.resend.com/templates',
+							method: 'GET',
+							headers: {
+								Authorization: `Bearer ${apiKey}`,
+							},
+							qs,
+							json: true,
+						});
+					} else if (operation === 'update') {
+						const templateId = this.getNodeParameter('templateId', i) as string;
+						const updateFields = this.getNodeParameter('templateUpdateFields', i, {}) as any;
+						const templateVariables = this.getNodeParameter('templateVariables', i, {}) as any;
+
+						const requestBody: any = {};
+
+						if (updateFields.alias) requestBody.alias = updateFields.alias;
+						if (updateFields.from) requestBody.from = updateFields.from;
+						if (updateFields.html) requestBody.html = updateFields.html;
+						if (updateFields.name) requestBody.name = updateFields.name;
+						if (updateFields.reply_to) {
+							if (Array.isArray(updateFields.reply_to)) {
+								requestBody.reply_to = updateFields.reply_to;
+							} else if (
+								typeof updateFields.reply_to === 'string' &&
+								updateFields.reply_to.includes(',')
+							) {
+								requestBody.reply_to = updateFields.reply_to
+									.split(',')
+									.map((email: string) => email.trim())
+									.filter((email: string) => email);
+							} else {
+								requestBody.reply_to = updateFields.reply_to;
+							}
+						}
+						if (updateFields.subject) requestBody.subject = updateFields.subject;
+						if (Object.prototype.hasOwnProperty.call(updateFields, 'text')) {
+							requestBody.text = updateFields.text;
+						}
+
+						const variables = parseTemplateVariables(templateVariables, 'fallback_value', i);
+						if (variables?.length) {
+							requestBody.variables = variables;
+						}
+
+						response = await this.helpers.httpRequest({
+							url: `https://api.resend.com/templates/${templateId}`,
+							method: 'PUT',
+							headers: {
+								Authorization: `Bearer ${apiKey}`,
+								'Content-Type': 'application/json',
+							},
+							body: requestBody,
+							json: true,
+						});
+					} else if (operation === 'delete') {
+						const templateId = this.getNodeParameter('templateId', i) as string;
+
+						response = await this.helpers.httpRequest({
+							url: `https://api.resend.com/templates/${templateId}`,
+							method: 'DELETE',
+							headers: {
+								Authorization: `Bearer ${apiKey}`,
+							},
+							json: true,
+						});
+					} else if (operation === 'send') {
+						const templateId = this.getNodeParameter('templateId', i) as string;
+						const templateFrom = this.getNodeParameter('templateSendFrom', i) as string;
+						const templateTo = this.getNodeParameter('templateSendTo', i) as string | string[];
+						const templateSendVariables = this.getNodeParameter('templateSendVariables', i, {}) as any;
+
+						const requestBody: any = {
+							from: templateFrom,
+							to: Array.isArray(templateTo)
+								? templateTo
+								: templateTo
+										.split(',')
+										.map((email: string) => email.trim())
+										.filter((email: string) => email),
+							template: {
+								id: templateId,
+							},
+						};
+
+						const variables = buildTemplateSendVariables(templateSendVariables);
+						if (variables && Object.keys(variables).length) {
+							requestBody.template.variables = variables;
+						}
+
+						response = await this.helpers.httpRequest({
+							url: 'https://api.resend.com/emails',
+							method: 'POST',
+							headers: {
+								Authorization: `Bearer ${apiKey}`,
+								'Content-Type': 'application/json',
+							},
+							body: requestBody,
 							json: true,
 						});
 					}
