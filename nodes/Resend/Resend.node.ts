@@ -16,7 +16,7 @@ export class Resend implements INodeType {
 		icon: 'file:resend-icon-white.svg',
 		group: ['output'],
 		version: 1,
-		description: 'Interact with Resend API for emails, templates, domains, API keys, broadcasts, audiences, and contacts',
+		description: 'Interact with Resend API for emails, templates, domains, API keys, broadcasts, segments, and contacts',
 		defaults: {
 			name: 'Resend',
 		},
@@ -41,11 +41,6 @@ export class Resend implements INodeType {
 						description: 'Manage API keys',
 					},
 					{
-						name: 'Audience',
-						value: 'audiences',
-						description: 'Manage email audiences',
-					},
-					{
 						name: 'Broadcast',
 						value: 'broadcasts',
 						description: 'Manage email broadcasts',
@@ -64,6 +59,11 @@ export class Resend implements INodeType {
 						name: 'Email',
 						value: 'email',
 						description: 'Send and manage emails',
+					},
+					{
+						name: 'Segment',
+						value: 'segments',
+						description: 'Manage contact segments',
 					},
 					{
 						name: 'Template',
@@ -1063,36 +1063,36 @@ export class Resend implements INodeType {
 				],
 			},
 
-			// AUDIENCE PROPERTIES
+			// SEGMENT PROPERTIES
 			{
-				displayName: 'Audience Name',
-				name: 'audienceName',
+				displayName: 'Segment Name',
+				name: 'segmentName',
 				type: 'string',
 				required: true,
 				default: '',
-				placeholder: 'Newsletter Subscribers',
+				placeholder: 'Registered Users',
 				displayOptions: {
 					show: {
-						resource: ['audiences'],
+						resource: ['segments'],
 						operation: ['create'],
 					},
 				},
-				description: 'The name of the audience',
+				description: 'The name of the segment',
 			},
 			{
-				displayName: 'Audience ID',
-				name: 'audienceId',
+				displayName: 'Segment ID',
+				name: 'segmentId',
 				type: 'string',
 				required: true,
 				default: '',
-				placeholder: 'aud_123456',
+				placeholder: 'seg_123456',
 				displayOptions: {
 					show: {
-						resource: ['audiences'],
+						resource: ['segments'],
 						operation: ['get', 'delete'],
 					},
 				},
-				description: 'The ID of the audience',
+				description: 'The ID of the segment',
 			},
 
 			// CONTACT PROPERTIES
@@ -1417,7 +1417,7 @@ export class Resend implements INodeType {
 				default: 'list',
 			},
 
-			// AUDIENCE OPERATIONS
+			// SEGMENT OPERATIONS
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -1425,33 +1425,33 @@ export class Resend implements INodeType {
 				noDataExpression: true,
 				displayOptions: {
 					show: {
-						resource: ['audiences'],
+						resource: ['segments'],
 					},
 				},
 				options: [
 					{
 						name: 'Create',
 						value: 'create',
-						description: 'Create a new audience',
-						action: 'Create an audience',
-					},
-					{
-						name: 'Delete',
-						value: 'delete',
-						description: 'Delete an audience',
-						action: 'Delete an audience',
+						description: 'Create a new segment',
+						action: 'Create a segment',
 					},
 					{
 						name: 'Get',
 						value: 'get',
-						description: 'Get an audience by ID',
-						action: 'Get an audience',
+						description: 'Get a segment by ID',
+						action: 'Get a segment',
+					},
+					{
+						name: 'Delete',
+						value: 'delete',
+						description: 'Delete a segment',
+						action: 'Delete a segment',
 					},
 					{
 						name: 'List',
 						value: 'list',
-						description: 'List all audiences',
-						action: 'List audiences',
+						description: 'List all segments',
+						action: 'List segments',
 					},
 				],
 				default: 'list',
@@ -2176,29 +2176,29 @@ export class Resend implements INodeType {
 						});
 					}
 
-					// AUDIENCE OPERATIONS
-				} else if (resource === 'audiences') {
+					// SEGMENT OPERATIONS
+				} else if (resource === 'segments') {
 					if (operation === 'create') {
-						const audienceName = this.getNodeParameter('audienceName', i) as string;
+						const segmentName = this.getNodeParameter('segmentName', i) as string;
 
 						response = await this.helpers.httpRequest({
-							url: 'https://api.resend.com/audiences',
+							url: 'https://api.resend.com/segments',
 							method: 'POST',
 							headers: {
 								Authorization: `Bearer ${apiKey}`,
 								'Content-Type': 'application/json',
 							},
 							body: {
-								name: audienceName,
+								name: segmentName,
 							},
 							json: true,
 						});
 
 					} else if (operation === 'get') {
-						const audienceId = this.getNodeParameter('audienceId', i) as string;
+						const segmentId = this.getNodeParameter('segmentId', i) as string;
 
 						response = await this.helpers.httpRequest({
-							url: `https://api.resend.com/audiences/${audienceId}`,
+							url: `https://api.resend.com/segments/${segmentId}`,
 							method: 'GET',
 							headers: {
 								Authorization: `Bearer ${apiKey}`,
@@ -2208,7 +2208,7 @@ export class Resend implements INodeType {
 
 					} else if (operation === 'list') {
 						response = await this.helpers.httpRequest({
-							url: 'https://api.resend.com/audiences',
+							url: 'https://api.resend.com/segments',
 							method: 'GET',
 							headers: {
 								Authorization: `Bearer ${apiKey}`,
@@ -2217,10 +2217,10 @@ export class Resend implements INodeType {
 						});
 
 					} else if (operation === 'delete') {
-						const audienceId = this.getNodeParameter('audienceId', i) as string;
+						const segmentId = this.getNodeParameter('segmentId', i) as string;
 
 						response = await this.helpers.httpRequest({
-							url: `https://api.resend.com/audiences/${audienceId}`,
+							url: `https://api.resend.com/segments/${segmentId}`,
 							method: 'DELETE',
 							headers: {
 								Authorization: `Bearer ${apiKey}`,
