@@ -133,6 +133,11 @@ export class Resend implements INodeType {
 						description: 'Send email with HTML content',
 					},
 					{
+						name: 'HTML and Text',
+						value: 'both',
+						description: 'Send email with both HTML and text content',
+					},
+					{
 						name: 'Text',
 						value: 'text',
 						description: 'Send email with plain text content',
@@ -206,7 +211,7 @@ export class Resend implements INodeType {
 					show: {
 						resource: ['email'],
 						operation: ['send'],
-						emailFormat: ['html'],
+						emailFormat: ['html', 'both'],
 					},
 				},
 				description: 'HTML version of the email content',
@@ -225,7 +230,7 @@ export class Resend implements INodeType {
 					show: {
 						resource: ['email'],
 						operation: ['send'],
-						emailFormat: ['text'],
+						emailFormat: ['text', 'both'],
 					},
 				},
 				description: 'Plain text version of the email content',
@@ -330,7 +335,77 @@ export class Resend implements INodeType {
 						name: 'reply_to',
 						type: 'string',
 						default: '',
-						description: 'Reply-to email address',
+						description: 'Reply-to email address. For multiple addresses, use comma-separated values.',
+					},
+					{
+						displayName: 'Headers',
+						name: 'headers',
+						type: 'fixedCollection',
+						default: { headers: [] },
+						typeOptions: {
+							multipleValues: true,
+						},
+						options: [
+							{
+								name: 'headers',
+								displayName: 'Header',
+								values: [
+									{
+										displayName: 'Name',
+										name: 'name',
+										type: 'string',
+										required: true,
+										default: '',
+									},
+									{
+										displayName: 'Value',
+										name: 'value',
+										type: 'string',
+										default: '',
+									},
+								],
+							},
+						],
+						description: 'Custom headers to add to the email',
+					},
+					{
+						displayName: 'Tags',
+						name: 'tags',
+						type: 'fixedCollection',
+						default: { tags: [] },
+						typeOptions: {
+							multipleValues: true,
+						},
+						options: [
+							{
+								name: 'tags',
+								displayName: 'Tag',
+								values: [
+									{
+										displayName: 'Name',
+										name: 'name',
+										type: 'string',
+										required: true,
+										default: '',
+									},
+									{
+										displayName: 'Value',
+										name: 'value',
+										type: 'string',
+										required: true,
+										default: '',
+									},
+								],
+							},
+						],
+						description: 'Tags to attach to the email',
+					},
+					{
+						displayName: 'Topic ID',
+						name: 'topic_id',
+						type: 'string',
+						default: '',
+						description: 'Topic ID to scope the email to',
 					},
 					{
 						displayName: 'Scheduled At',
@@ -381,12 +456,12 @@ export class Resend implements INodeType {
 							typeOptions: {
 								rows: 4
 							},
-							displayOptions: {
-								show: {
-									'/emailFormat': ['html'],
-								},
+						displayOptions: {
+							show: {
+								'/emailFormat': ['html', 'both'],
 							},
 						},
+					},
 						{
 							displayName: 'Subject',
 							name: 'subject',
@@ -406,12 +481,12 @@ export class Resend implements INodeType {
 								rows: 4
 							},
 							placeholder: 'Your plain text content here',
-							displayOptions: {
-								show: {
-									'/emailFormat': ['text'],
-								},
+						displayOptions: {
+							show: {
+								'/emailFormat': ['text', 'both'],
 							},
 						},
+					},
 						{
 							displayName: 'To',
 							name: 'to',
@@ -2061,19 +2136,67 @@ export class Resend implements INodeType {
 						};
 
 						// Add content based on selected format
-						if (emailFormat === 'html') {
+						if (emailFormat === 'html' || emailFormat === 'both') {
 							const html = this.getNodeParameter('html', i) as string;
-							if (html) requestBody.html = html;
-						} else if (emailFormat === 'text') {
+							if (!html) {
+								throw new NodeOperationError(this.getNode(), 'HTML Content is required.', { itemIndex: i });
+							}
+							requestBody.html = html;
+						}
+						if (emailFormat === 'text' || emailFormat === 'both') {
 							const text = this.getNodeParameter('text', i) as string;
-							if (text) requestBody.text = text;
+							if (!text) {
+								throw new NodeOperationError(this.getNode(), 'Text Content is required.', { itemIndex: i });
+							}
+							requestBody.text = text;
 						}
 						if (additionalOptions.cc) {
-							requestBody.cc = additionalOptions.cc.split(',').map((email: string) => email.trim());
+							requestBody.cc = additionalOptions.cc
+								.split(',')
+								.map((email: string) => email.trim())
+								.filter((email: string) => email);
 						}
 						if (additionalOptions.bcc) {
-							requestBody.bcc = additionalOptions.bcc.split(',').map((email: string) => email.trim());
-						}						if (additionalOptions.reply_to) requestBody.reply_to = additionalOptions.reply_to;
+							requestBody.bcc = additionalOptions.bcc
+								.split(',')
+								.map((email: string) => email.trim())
+								.filter((email: string) => email);
+						}
+						if (additionalOptions.reply_to) {
+							if (Array.isArray(additionalOptions.reply_to)) {
+								requestBody.reply_to = additionalOptions.reply_to;
+							} else if (
+								typeof additionalOptions.reply_to === 'string' &&
+								additionalOptions.reply_to.includes(',')
+							) {
+								requestBody.reply_to = additionalOptions.reply_to
+									.split(',')
+									.map((email: string) => email.trim())
+									.filter((email: string) => email);
+							} else {
+								requestBody.reply_to = additionalOptions.reply_to;
+							}
+						}
+						if (additionalOptions.headers?.headers?.length) {
+							const headers: Record<string, string> = {};
+							for (const header of additionalOptions.headers.headers) {
+								if (header.name) {
+									headers[header.name] = header.value ?? '';
+								}
+							}
+							if (Object.keys(headers).length) {
+								requestBody.headers = headers;
+							}
+						}
+						if (additionalOptions.tags?.tags?.length) {
+							requestBody.tags = additionalOptions.tags.tags
+								.filter((tag: { name?: string }) => tag.name)
+								.map((tag: { name: string; value?: string }) => ({
+									name: tag.name,
+									value: tag.value ?? '',
+								}));
+						}
+						if (additionalOptions.topic_id) requestBody.topic_id = additionalOptions.topic_id;
 						if (additionalOptions.scheduled_at) requestBody.scheduled_at = additionalOptions.scheduled_at;
 						
 						// Validate that attachments aren't used with scheduled emails
@@ -2127,10 +2250,17 @@ export class Resend implements INodeType {
 								subject: email.subject,
 							};
 
-							// Add content based on selected format
-							if (emailFormat === 'html' && email.html) {
+							if (emailFormat === 'html' || emailFormat === 'both') {
+								if (!email.html) {
+									throw new NodeOperationError(this.getNode(), 'HTML Content is required for batch emails.', { itemIndex: i });
+								}
 								emailObj.html = email.html;
-							} else if (emailFormat === 'text' && email.text) {
+							}
+
+							if (emailFormat === 'text' || emailFormat === 'both') {
+								if (!email.text) {
+									throw new NodeOperationError(this.getNode(), 'Text Content is required for batch emails.', { itemIndex: i });
+								}
 								emailObj.text = email.text;
 							}
 
