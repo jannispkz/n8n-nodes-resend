@@ -1219,6 +1219,36 @@ export class Resend implements INodeType {
 				description: 'Schedule email to be sent later. The date should be in ISO 8601 format (e.g., 2024-08-05T11:52:01.858Z).',
 			},
 			{
+				displayName: 'Return All',
+				name: 'returnAll',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						resource: ['email', 'templates', 'domains', 'apiKeys', 'broadcasts', 'segments', 'topics', 'contacts'],
+						operation: ['list'],
+					},
+				},
+				description: 'Whether to return all results or only up to a given limit',
+			},
+			{
+				displayName: 'Limit',
+				name: 'limit',
+				type: 'number',
+				typeOptions: {
+					minValue: 1,
+				},
+				default: 50,
+				displayOptions: {
+					show: {
+						resource: ['email', 'templates', 'domains', 'apiKeys', 'broadcasts', 'segments', 'topics', 'contacts'],
+						operation: ['list'],
+						returnAll: [false],
+					},
+				},
+				description: 'Max number of results to return',
+			},
+			{
 				displayName: 'List Options',
 				name: 'emailListOptions',
 				type: 'collection',
@@ -1231,16 +1261,6 @@ export class Resend implements INodeType {
 					},
 				},
 				options: [
-					{
-						displayName: 'Limit',
-						name: 'limit',
-						type: 'number',
-						typeOptions: {
-							minValue: 1,
-						},
-						default: 50,
-						description: 'Max number of results to return',
-					},
 					{
 						displayName: 'After',
 						name: 'after',
@@ -1477,16 +1497,6 @@ export class Resend implements INodeType {
 				},
 				options: [
 					{
-						displayName: 'Limit',
-						name: 'limit',
-						type: 'number',
-						typeOptions: {
-							minValue: 1,
-						},
-						default: 50,
-						description: 'Max number of results to return',
-					},
-					{
 						displayName: 'After',
 						name: 'after',
 						type: 'string',
@@ -1609,6 +1619,35 @@ export class Resend implements INodeType {
 					},
 				],
 			},
+			{
+				displayName: 'List Options',
+				name: 'domainListOptions',
+				type: 'collection',
+				placeholder: 'Add Option',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['domains'],
+						operation: ['list'],
+					},
+				},
+				options: [
+					{
+						displayName: 'After',
+						name: 'after',
+						type: 'string',
+						default: '',
+						description: 'Return results after this domain ID',
+					},
+					{
+						displayName: 'Before',
+						name: 'before',
+						type: 'string',
+						default: '',
+						description: 'Return results before this domain ID',
+					},
+				],
+			},
 
 			// API KEY PROPERTIES
 			{
@@ -1672,6 +1711,35 @@ export class Resend implements INodeType {
 					},
 				},
 				description: 'Restrict an API key to send emails only from a specific domain. This is only used when the permission is set to sending access.',
+			},
+			{
+				displayName: 'List Options',
+				name: 'apiKeyListOptions',
+				type: 'collection',
+				placeholder: 'Add Option',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['apiKeys'],
+						operation: ['list'],
+					},
+				},
+				options: [
+					{
+						displayName: 'After',
+						name: 'after',
+						type: 'string',
+						default: '',
+						description: 'Return results after this API key ID',
+					},
+					{
+						displayName: 'Before',
+						name: 'before',
+						type: 'string',
+						default: '',
+						description: 'Return results before this API key ID',
+					},
+				],
 			},
 
 			// BROADCAST PROPERTIES
@@ -1925,16 +1993,6 @@ export class Resend implements INodeType {
 				},
 				options: [
 					{
-						displayName: 'Limit',
-						name: 'limit',
-						type: 'number',
-						typeOptions: {
-							minValue: 1,
-						},
-						default: 50,
-						description: 'Max number of results to return',
-					},
-					{
 						displayName: 'After',
 						name: 'after',
 						type: 'string',
@@ -1998,16 +2056,6 @@ export class Resend implements INodeType {
 					},
 				},
 				options: [
-					{
-						displayName: 'Limit',
-						name: 'limit',
-						type: 'number',
-						typeOptions: {
-							minValue: 1,
-						},
-						default: 50,
-						description: 'Max number of results to return',
-					},
 					{
 						displayName: 'After',
 						name: 'after',
@@ -2163,16 +2211,6 @@ export class Resend implements INodeType {
 					},
 				},
 				options: [
-					{
-						displayName: 'Limit',
-						name: 'limit',
-						type: 'number',
-						typeOptions: {
-							minValue: 1,
-						},
-						default: 50,
-						description: 'Max number of results to return',
-					},
 					{
 						displayName: 'After',
 						name: 'after',
@@ -2474,16 +2512,6 @@ export class Resend implements INodeType {
 				},
 				options: [
 					{
-						displayName: 'Limit',
-						name: 'limit',
-						type: 'number',
-						typeOptions: {
-							minValue: 1,
-						},
-						default: 50,
-						description: 'Max number of results to return',
-					},
-					{
 						displayName: 'After',
 						name: 'after',
 						type: 'string',
@@ -2783,6 +2811,109 @@ export class Resend implements INodeType {
 			}
 
 			return Object.keys(variables).length ? variables : undefined;
+		};
+		type ListOptions = {
+			after?: string;
+			before?: string;
+		};
+		const requestList = async (
+			url: string,
+			listOptions: ListOptions,
+			apiKey: string,
+			itemIndex: number,
+			returnAll: boolean,
+			limit?: number,
+		) => {
+			if (listOptions.after && listOptions.before) {
+				throw new NodeOperationError(
+					this.getNode(),
+					'You can only use either "After" or "Before", not both.',
+					{ itemIndex },
+				);
+			}
+
+			const shouldReturnAll = returnAll === true;
+			const qs: Record<string, string | number> = {};
+			const pageSize = shouldReturnAll ? 100 : (limit ?? 50);
+
+			if (pageSize !== undefined) {
+				qs.limit = pageSize;
+			}
+			if (listOptions.after) {
+				qs.after = listOptions.after;
+			}
+			if (listOptions.before) {
+				qs.before = listOptions.before;
+			}
+
+			const requestPage = () =>
+				this.helpers.httpRequest({
+					url,
+					method: 'GET',
+					headers: {
+						Authorization: `Bearer ${apiKey}`,
+					},
+					qs,
+					json: true,
+				});
+
+			if (!shouldReturnAll) {
+				const singleResponse = await requestPage();
+				if (
+					typeof limit === 'number' &&
+					limit > 0 &&
+					Array.isArray((singleResponse as { data?: unknown[] }).data)
+				) {
+					const responseData = (singleResponse as { data?: unknown[] }).data ?? [];
+					if (responseData.length > limit) {
+						(singleResponse as { data: unknown[] }).data = responseData.slice(0, limit);
+					}
+				}
+				return singleResponse;
+			}
+
+			const allItems: unknown[] = [];
+			let lastResponse: unknown;
+			let hasMore = true;
+			let pageCount = 0;
+			const maxPages = 100;
+			let paginationMode: 'after' | 'before' | undefined = listOptions.before ? 'before' : undefined;
+
+			while (hasMore) {
+				lastResponse = await requestPage();
+				const responseData = Array.isArray((lastResponse as { data?: unknown[] }).data)
+					? ((lastResponse as { data?: unknown[] }).data as unknown[])
+					: [];
+				allItems.push(...responseData);
+
+				hasMore = Boolean((lastResponse as { has_more?: boolean }).has_more);
+				pageCount += 1;
+				if (!hasMore || responseData.length === 0 || pageCount >= maxPages) {
+					break;
+				}
+
+				const lastItem = responseData[responseData.length - 1] as { id?: string } | undefined;
+				if (!lastItem?.id) {
+					break;
+				}
+
+				if (paginationMode === 'before') {
+					qs.before = lastItem.id;
+					delete qs.after;
+				} else {
+					qs.after = lastItem.id;
+					delete qs.before;
+					paginationMode = 'after';
+				}
+			}
+
+			if (lastResponse && Array.isArray((lastResponse as { data?: unknown[] }).data)) {
+				(lastResponse as { data: unknown[] }).data = allItems;
+				(lastResponse as { has_more?: boolean }).has_more = false;
+				return lastResponse;
+			}
+
+			return { object: 'list', data: allItems, has_more: false };
 		};
 
 		for (let i = 0; i < length; i++) {
@@ -3135,36 +3266,10 @@ export class Resend implements INodeType {
 						});
 
 					} else if (operation === 'list') {
-						const listOptions = this.getNodeParameter('emailListOptions', i, {}) as any;
-						const qs: Record<string, string | number> = {};
-
-						if (listOptions.after && listOptions.before) {
-							throw new NodeOperationError(
-								this.getNode(),
-								'You can only use either "After" or "Before", not both.',
-								{ itemIndex: i },
-							);
-						}
-
-						if (listOptions.limit !== undefined) {
-							qs.limit = listOptions.limit;
-						}
-						if (listOptions.after) {
-							qs.after = listOptions.after;
-						}
-						if (listOptions.before) {
-							qs.before = listOptions.before;
-						}
-
-						response = await this.helpers.httpRequest({
-							url: 'https://api.resend.com/emails',
-							method: 'GET',
-							headers: {
-								Authorization: `Bearer ${apiKey}`,
-							},
-							qs,
-							json: true,
-						});
+						const listOptions = this.getNodeParameter('emailListOptions', i, {}) as ListOptions;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const limit = this.getNodeParameter('limit', i, 50) as number;
+						response = await requestList('https://api.resend.com/emails', listOptions, apiKey, i, returnAll, limit);
 
 					} else if (operation === 'retrieve') {
 						const emailId = this.getNodeParameter('emailId', i) as string;
@@ -3253,36 +3358,17 @@ export class Resend implements INodeType {
 							json: true,
 						});
 					} else if (operation === 'list') {
-						const listOptions = this.getNodeParameter('templateListOptions', i, {}) as any;
-						const qs: Record<string, string | number> = {};
-
-						if (listOptions.after && listOptions.before) {
-							throw new NodeOperationError(
-								this.getNode(),
-								'You can only use either "After" or "Before", not both.',
-								{ itemIndex: i },
-							);
-						}
-
-						if (listOptions.limit !== undefined) {
-							qs.limit = listOptions.limit;
-						}
-						if (listOptions.after) {
-							qs.after = listOptions.after;
-						}
-						if (listOptions.before) {
-							qs.before = listOptions.before;
-						}
-
-						response = await this.helpers.httpRequest({
-							url: 'https://api.resend.com/templates',
-							method: 'GET',
-							headers: {
-								Authorization: `Bearer ${apiKey}`,
-							},
-							qs,
-							json: true,
-						});
+						const listOptions = this.getNodeParameter('templateListOptions', i, {}) as ListOptions;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const limit = this.getNodeParameter('limit', i, 50) as number;
+						response = await requestList(
+							'https://api.resend.com/templates',
+							listOptions,
+							apiKey,
+							i,
+							returnAll,
+							limit,
+						);
 					} else if (operation === 'update') {
 						const templateId = this.getNodeParameter('templateId', i) as string;
 						const updateFields = this.getNodeParameter('templateUpdateFields', i, {}) as any;
@@ -3409,14 +3495,10 @@ export class Resend implements INodeType {
 						});
 
 					} else if (operation === 'list') {
-						response = await this.helpers.httpRequest({
-							url: 'https://api.resend.com/domains',
-							method: 'GET',
-							headers: {
-								Authorization: `Bearer ${apiKey}`,
-							},
-							json: true,
-						});
+						const listOptions = this.getNodeParameter('domainListOptions', i, {}) as ListOptions;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const limit = this.getNodeParameter('limit', i, 50) as number;
+						response = await requestList('https://api.resend.com/domains', listOptions, apiKey, i, returnAll, limit);
 
 					} else if (operation === 'delete') {
 						const domainId = this.getNodeParameter('domainId', i) as string;
@@ -3459,14 +3541,10 @@ export class Resend implements INodeType {
 						});
 
 					} else if (operation === 'list') {
-						response = await this.helpers.httpRequest({
-							url: 'https://api.resend.com/api-keys',
-							method: 'GET',
-							headers: {
-								Authorization: `Bearer ${apiKey}`,
-							},
-							json: true,
-						});
+						const listOptions = this.getNodeParameter('apiKeyListOptions', i, {}) as ListOptions;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const limit = this.getNodeParameter('limit', i, 50) as number;
+						response = await requestList('https://api.resend.com/api-keys', listOptions, apiKey, i, returnAll, limit);
 
 					} else if (operation === 'delete') {
 						const apiKeyId = this.getNodeParameter('apiKeyId', i) as string;
@@ -3602,36 +3680,17 @@ export class Resend implements INodeType {
 						});
 
 					} else if (operation === 'list') {
-						const listOptions = this.getNodeParameter('broadcastListOptions', i, {}) as any;
-						const qs: Record<string, string | number> = {};
-
-						if (listOptions.after && listOptions.before) {
-							throw new NodeOperationError(
-								this.getNode(),
-								'You can only use either "After" or "Before", not both.',
-								{ itemIndex: i },
-							);
-						}
-
-						if (listOptions.limit !== undefined) {
-							qs.limit = listOptions.limit;
-						}
-						if (listOptions.after) {
-							qs.after = listOptions.after;
-						}
-						if (listOptions.before) {
-							qs.before = listOptions.before;
-						}
-
-						response = await this.helpers.httpRequest({
-							url: 'https://api.resend.com/broadcasts',
-							method: 'GET',
-							headers: {
-								Authorization: `Bearer ${apiKey}`,
-							},
-							qs,
-							json: true,
-						});
+						const listOptions = this.getNodeParameter('broadcastListOptions', i, {}) as ListOptions;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const limit = this.getNodeParameter('limit', i, 50) as number;
+						response = await requestList(
+							'https://api.resend.com/broadcasts',
+							listOptions,
+							apiKey,
+							i,
+							returnAll,
+							limit,
+						);
 
 					} else if (operation === 'delete') {
 						const broadcastId = this.getNodeParameter('broadcastId', i) as string;
@@ -3677,36 +3736,10 @@ export class Resend implements INodeType {
 						});
 
 					} else if (operation === 'list') {
-						const listOptions = this.getNodeParameter('segmentListOptions', i, {}) as any;
-						const qs: Record<string, string | number> = {};
-
-						if (listOptions.after && listOptions.before) {
-							throw new NodeOperationError(
-								this.getNode(),
-								'You can only use either "After" or "Before", not both.',
-								{ itemIndex: i },
-							);
-						}
-
-						if (listOptions.limit !== undefined) {
-							qs.limit = listOptions.limit;
-						}
-						if (listOptions.after) {
-							qs.after = listOptions.after;
-						}
-						if (listOptions.before) {
-							qs.before = listOptions.before;
-						}
-
-						response = await this.helpers.httpRequest({
-							url: 'https://api.resend.com/segments',
-							method: 'GET',
-							headers: {
-								Authorization: `Bearer ${apiKey}`,
-							},
-							qs,
-							json: true,
-						});
+						const listOptions = this.getNodeParameter('segmentListOptions', i, {}) as ListOptions;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const limit = this.getNodeParameter('limit', i, 50) as number;
+						response = await requestList('https://api.resend.com/segments', listOptions, apiKey, i, returnAll, limit);
 
 					} else if (operation === 'delete') {
 						const segmentId = this.getNodeParameter('segmentId', i) as string;
@@ -3762,36 +3795,10 @@ export class Resend implements INodeType {
 						});
 
 					} else if (operation === 'list') {
-						const listOptions = this.getNodeParameter('topicListOptions', i, {}) as any;
-						const qs: Record<string, string | number> = {};
-
-						if (listOptions.after && listOptions.before) {
-							throw new NodeOperationError(
-								this.getNode(),
-								'You can only use either "After" or "Before", not both.',
-								{ itemIndex: i },
-							);
-						}
-
-						if (listOptions.limit !== undefined) {
-							qs.limit = listOptions.limit;
-						}
-						if (listOptions.after) {
-							qs.after = listOptions.after;
-						}
-						if (listOptions.before) {
-							qs.before = listOptions.before;
-						}
-
-						response = await this.helpers.httpRequest({
-							url: 'https://api.resend.com/topics',
-							method: 'GET',
-							headers: {
-								Authorization: `Bearer ${apiKey}`,
-							},
-							qs,
-							json: true,
-						});
+						const listOptions = this.getNodeParameter('topicListOptions', i, {}) as ListOptions;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const limit = this.getNodeParameter('limit', i, 50) as number;
+						response = await requestList('https://api.resend.com/topics', listOptions, apiKey, i, returnAll, limit);
 
 					} else if (operation === 'update') {
 						const topicId = this.getNodeParameter('topicId', i) as string;
@@ -3932,36 +3939,10 @@ export class Resend implements INodeType {
 						});
 
 					} else if (operation === 'list') {
-						const listOptions = this.getNodeParameter('contactListOptions', i, {}) as any;
-						const qs: Record<string, string | number> = {};
-
-						if (listOptions.after && listOptions.before) {
-							throw new NodeOperationError(
-								this.getNode(),
-								'You can only use either "After" or "Before", not both.',
-								{ itemIndex: i },
-							);
-						}
-
-						if (listOptions.limit !== undefined) {
-							qs.limit = listOptions.limit;
-						}
-						if (listOptions.after) {
-							qs.after = listOptions.after;
-						}
-						if (listOptions.before) {
-							qs.before = listOptions.before;
-						}
-
-						response = await this.helpers.httpRequest({
-							url: 'https://api.resend.com/contacts',
-							method: 'GET',
-							headers: {
-								Authorization: `Bearer ${apiKey}`,
-							},
-							qs,
-							json: true,
-						});
+						const listOptions = this.getNodeParameter('contactListOptions', i, {}) as ListOptions;
+						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
+						const limit = this.getNodeParameter('limit', i, 50) as number;
+						response = await requestList('https://api.resend.com/contacts', listOptions, apiKey, i, returnAll, limit);
 
 					} else if (operation === 'delete') {
 						const contactIdentifier = this.getNodeParameter('contactIdentifier', i) as string;
