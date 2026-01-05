@@ -129,6 +129,315 @@ export class Resend implements INodeType {
 				],
 				default: 'send',
 			},
+			// TEMPLATE OPERATIONS
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['templates'],
+					},
+				},
+				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a new template',
+						action: 'Create a template',
+					},
+					{
+						name: 'Delete',
+						value: 'delete',
+						description: 'Delete a template',
+						action: 'Delete a template',
+					},
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a template by ID',
+						action: 'Get a template',
+					},
+					{
+						name: 'List',
+						value: 'list',
+						description: 'List all templates',
+						action: 'List templates',
+					},
+					{
+						name: 'Update',
+						value: 'update',
+						description: 'Update a template',
+						action: 'Update a template',
+					},
+				],
+				default: 'list',
+			},
+			// DOMAIN OPERATIONS
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['domains'],
+					},
+				},
+				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a new domain',
+						action: 'Create a domain',
+					},
+					{
+						name: 'Delete',
+						value: 'delete',
+						description: 'Delete a domain',
+						action: 'Delete a domain',
+					},
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a domain by ID',
+						action: 'Get a domain',
+					},
+					{
+						name: 'List',
+						value: 'list',
+						description: 'List all domains',
+						action: 'List domains',
+					},
+					{
+						name: 'Update',
+						value: 'update',
+						description: 'Update a domain',
+						action: 'Update a domain',
+					},
+					{
+						name: 'Verify',
+						value: 'verify',
+						description: 'Verify a domain',
+						action: 'Verify a domain',
+					},
+				],
+				default: 'list',
+			},
+			// API KEY OPERATIONS
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['apiKeys'],
+					},
+				},
+				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a new API key',
+						action: 'Create an API key',
+					},
+					{
+						name: 'Delete',
+						value: 'delete',
+						description: 'Delete an API key',
+						action: 'Delete an API key',
+					},
+					{
+						name: 'List',
+						value: 'list',
+						description: 'List all API keys',
+						action: 'List API keys',
+					},
+				],
+				default: 'list',
+			},
+			// BROADCAST OPERATIONS
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['broadcasts'],
+					},
+				},
+				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a new broadcast',
+						action: 'Create a broadcast',
+					},
+					{
+						name: 'Delete',
+						value: 'delete',
+						description: 'Delete a broadcast',
+						action: 'Delete a broadcast',
+					},
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a broadcast by ID',
+						action: 'Get a broadcast',
+					},
+					{
+						name: 'List',
+						value: 'list',
+						description: 'List all broadcasts',
+						action: 'List broadcasts',
+					},
+					{
+						name: 'Send',
+						value: 'send',
+						description: 'Send a broadcast',
+						action: 'Send a broadcast',
+					},
+					{
+						name: 'Update',
+						value: 'update',
+						description: 'Update a broadcast',
+						action: 'Update a broadcast',
+					},
+				],
+				default: 'list',
+			},
+			// SEGMENT OPERATIONS
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['segments'],
+					},
+				},
+				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a new segment',
+						action: 'Create a segment',
+					},
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a segment by ID',
+						action: 'Get a segment',
+					},
+					{
+						name: 'Delete',
+						value: 'delete',
+						description: 'Delete a segment',
+						action: 'Delete a segment',
+					},
+					{
+						name: 'List',
+						value: 'list',
+						description: 'List all segments',
+						action: 'List segments',
+					},
+				],
+				default: 'list',
+			},
+			// TOPIC OPERATIONS
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['topics'],
+					},
+				},
+				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a new topic',
+						action: 'Create a topic',
+					},
+					{
+						name: 'Delete',
+						value: 'delete',
+						description: 'Delete a topic',
+						action: 'Delete a topic',
+					},
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a topic by ID',
+						action: 'Get a topic',
+					},
+					{
+						name: 'List',
+						value: 'list',
+						description: 'List all topics',
+						action: 'List topics',
+					},
+					{
+						name: 'Update',
+						value: 'update',
+						description: 'Update a topic',
+						action: 'Update a topic',
+					},
+				],
+				default: 'list',
+			},
+			// CONTACT OPERATIONS
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['contacts'],
+					},
+				},
+				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a new contact',
+						action: 'Create a contact',
+					},
+					{
+						name: 'Delete',
+						value: 'delete',
+						description: 'Delete a contact',
+						action: 'Delete a contact',
+					},
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a contact by ID',
+						action: 'Get a contact',
+					},
+					{
+						name: 'List',
+						value: 'list',
+						description: 'List contacts',
+						action: 'List contacts',
+					},
+					{
+						name: 'Update',
+						value: 'update',
+						description: 'Update a contact',
+						action: 'Update a contact',
+					},
+				],
+				default: 'list',
+			},
 			// Properties for "Send Email" operation
 			{
 				displayName: 'From',
@@ -2193,321 +2502,6 @@ export class Resend implements INodeType {
 				],
 			},
 
-			// TEMPLATE OPERATIONS
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['templates'],
-					},
-				},
-				options: [
-					{
-						name: 'Create',
-						value: 'create',
-						description: 'Create a new template',
-						action: 'Create a template',
-					},
-					{
-						name: 'Delete',
-						value: 'delete',
-						description: 'Delete a template',
-						action: 'Delete a template',
-					},
-					{
-						name: 'Get',
-						value: 'get',
-						description: 'Get a template by ID',
-						action: 'Get a template',
-					},
-					{
-						name: 'List',
-						value: 'list',
-						description: 'List all templates',
-						action: 'List templates',
-					},
-					{
-						name: 'Update',
-						value: 'update',
-						description: 'Update a template',
-						action: 'Update a template',
-					},
-				],
-				default: 'list',
-			},
-
-			// DOMAIN OPERATIONS
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['domains'],
-					},
-				},
-				options: [
-					{
-						name: 'Create',
-						value: 'create',
-						description: 'Create a new domain',
-						action: 'Create a domain',
-					},
-					{
-						name: 'Delete',
-						value: 'delete',
-						description: 'Delete a domain',
-						action: 'Delete a domain',
-					},
-					{
-						name: 'Get',
-						value: 'get',
-						description: 'Get a domain by ID',
-						action: 'Get a domain',
-					},
-					{
-						name: 'List',
-						value: 'list',
-						description: 'List all domains',
-						action: 'List domains',
-					},
-					{
-						name: 'Update',
-						value: 'update',
-						description: 'Update a domain',
-						action: 'Update a domain',
-					},
-					{
-						name: 'Verify',
-						value: 'verify',
-						description: 'Verify a domain',
-						action: 'Verify a domain',
-					},
-				],
-				default: 'list',
-			},
-
-			// API KEY OPERATIONS
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['apiKeys'],
-					},
-				},
-				options: [
-					{
-						name: 'Create',
-						value: 'create',
-						description: 'Create a new API key',
-						action: 'Create an API key',
-					},
-					{
-						name: 'Delete',
-						value: 'delete',
-						description: 'Delete an API key',
-						action: 'Delete an API key',
-					},
-					{
-						name: 'List',
-						value: 'list',
-						description: 'List all API keys',
-						action: 'List API keys',
-					},
-				],
-				default: 'list',
-			},
-
-			// BROADCAST OPERATIONS
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['broadcasts'],
-					},
-				},
-				options: [
-					{
-						name: 'Create',
-						value: 'create',
-						description: 'Create a new broadcast',
-						action: 'Create a broadcast',
-					},
-					{
-						name: 'Delete',
-						value: 'delete',
-						description: 'Delete a broadcast',
-						action: 'Delete a broadcast',
-					},
-					{
-						name: 'Get',
-						value: 'get',
-						description: 'Get a broadcast by ID',
-						action: 'Get a broadcast',
-					},
-					{
-						name: 'List',
-						value: 'list',
-						description: 'List all broadcasts',
-						action: 'List broadcasts',
-					},
-					{
-						name: 'Send',
-						value: 'send',
-						description: 'Send a broadcast',
-						action: 'Send a broadcast',
-					},
-					{
-						name: 'Update',
-						value: 'update',
-						description: 'Update a broadcast',
-						action: 'Update a broadcast',
-					},
-				],
-				default: 'list',
-			},
-
-			// SEGMENT OPERATIONS
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['segments'],
-					},
-				},
-				options: [
-					{
-						name: 'Create',
-						value: 'create',
-						description: 'Create a new segment',
-						action: 'Create a segment',
-					},
-					{
-						name: 'Get',
-						value: 'get',
-						description: 'Get a segment by ID',
-						action: 'Get a segment',
-					},
-					{
-						name: 'Delete',
-						value: 'delete',
-						description: 'Delete a segment',
-						action: 'Delete a segment',
-					},
-					{
-						name: 'List',
-						value: 'list',
-						description: 'List all segments',
-						action: 'List segments',
-					},
-				],
-				default: 'list',
-			},
-
-			// TOPIC OPERATIONS
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['topics'],
-					},
-				},
-				options: [
-					{
-						name: 'Create',
-						value: 'create',
-						description: 'Create a new topic',
-						action: 'Create a topic',
-					},
-					{
-						name: 'Delete',
-						value: 'delete',
-						description: 'Delete a topic',
-						action: 'Delete a topic',
-					},
-					{
-						name: 'Get',
-						value: 'get',
-						description: 'Get a topic by ID',
-						action: 'Get a topic',
-					},
-					{
-						name: 'List',
-						value: 'list',
-						description: 'List all topics',
-						action: 'List topics',
-					},
-					{
-						name: 'Update',
-						value: 'update',
-						description: 'Update a topic',
-						action: 'Update a topic',
-					},
-				],
-				default: 'list',
-			},
-
-			// CONTACT OPERATIONS
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
-				displayOptions: {
-					show: {
-						resource: ['contacts'],
-					},
-				},
-				options: [
-					{
-						name: 'Create',
-						value: 'create',
-						description: 'Create a new contact',
-						action: 'Create a contact',
-					},
-					{
-						name: 'Delete',
-						value: 'delete',
-						description: 'Delete a contact',
-						action: 'Delete a contact',
-					},
-					{
-						name: 'Get',
-						value: 'get',
-						description: 'Get a contact by ID',
-						action: 'Get a contact',
-					},
-					{
-						name: 'List',
-						value: 'list',
-						description: 'List contacts',
-						action: 'List contacts',
-					},
-					{
-						name: 'Update',
-						value: 'update',
-						description: 'Update a contact',
-						action: 'Update a contact',
-					},
-				],
-				default: 'list',
-			},
 		],
 	};
 	methods = {
