@@ -44,6 +44,7 @@ export class Resend implements INodeType {
 		group: ['output'],
 		version: 1,
 		description: 'Interact with Resend API for emails, templates, domains, API keys, broadcasts, segments, topics, and contacts',
+		subtitle: '={{(() => { const resourceLabels = { apiKeys: "api key", broadcasts: "broadcast", contacts: "contact", domains: "domain", email: "email", segments: "segment", templates: "template", topics: "topic" }; const operationLabels = { retrieve: "get", sendBatch: "send batch" }; const resource = $parameter["resource"]; const operation = $parameter["operation"]; const resourceLabel = resourceLabels[resource] ?? resource; const operationLabel = operationLabels[operation] ?? operation; return operationLabel + ": " + resourceLabel; })() }}',
 		defaults: {
 			name: 'Resend',
 		},

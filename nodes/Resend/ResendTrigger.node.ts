@@ -66,7 +66,7 @@ export class ResendTrigger implements INodeType {
 		icon: 'file:resend-icon-white.svg',		group: ['trigger'],
 		version: 1,
 		description: 'Triggers workflows when Resend email events occur, such as email sent, delivered, opened, clicked, bounced, or complained. Includes secure webhook signature verification.',
-		subtitle: '={{$parameter["events"].join(", ")}}',
+		subtitle: '={{(() => { const events = $parameter["events"] ?? []; const actionLabels = { created: "create", deleted: "delete", updated: "update", sent: "send", opened: "open", clicked: "click", bounced: "bounce", complained: "complain", delivered: "deliver", delivery_delayed: "delay" }; return events.map((event) => { const [resource, action] = event.split("."); if (!resource || !action) { return event; } const actionLabel = actionLabels[action] ?? action.replace(/_/g, " "); return actionLabel + ": " + resource; }).join(", "); })() }}',
 		defaults: {
 			name: 'Resend Trigger',
 		},
