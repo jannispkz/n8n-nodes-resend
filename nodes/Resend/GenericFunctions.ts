@@ -1,13 +1,134 @@
 import {
 	IExecuteFunctions,
+	IHttpRequestMethods,
 	ILoadOptionsFunctions,
+	INodeProperties,
 	INodePropertyOptions,
 	NodeOperationError,
 } from 'n8n-workflow';
 
+const RESEND_API_BASE = 'https://api.resend.com';
+
 export type ListOptions = {
 	after?: string;
 	before?: string;
+};
+
+/**
+ * Factory function to create list options field for any resource.
+ * Eliminates duplication of After/Before pagination fields across description files.
+ */
+export const createListOptions = (
+	resource: string,
+	resourceLabel: string,
+): INodeProperties => ({
+	displayName: 'List Options',
+	name: `${resource}ListOptions`,
+	type: 'collection',
+	placeholder: 'Add Option',
+	default: {},
+	displayOptions: {
+		show: {
+			resource: [resource],
+			operation: ['list'],
+		},
+	},
+	options: [
+		{
+			displayName: 'After',
+			name: 'after',
+			type: 'string',
+			default: '',
+			description: `Return results after this ${resourceLabel} ID`,
+		},
+		{
+			displayName: 'Before',
+			name: 'before',
+			type: 'string',
+			default: '',
+			description: `Return results before this ${resourceLabel} ID`,
+		},
+	],
+});
+
+/**
+ * Helper to make authenticated requests to the Resend API.
+ * Reduces duplication of Authorization headers across all API calls.
+ */
+export const resendRequest = async <T = unknown>(
+	executeFunctions: IExecuteFunctions,
+	method: IHttpRequestMethods,
+	endpoint: string,
+	apiKey: string,
+	body?: Record<string, unknown> | Record<string, unknown>[],
+	qs?: Record<string, string | number>,
+): Promise<T> => {
+	return executeFunctions.helpers.httpRequest({
+		url: `${RESEND_API_BASE}${endpoint}`,
+		method,
+		headers: {
+			Authorization: `Bearer ${apiKey}`,
+		},
+		body,
+		qs,
+		json: true,
+	});
+};
+
+/**
+ * Generic paginated loader for dropdown options.
+ * Used by getTemplates, getSegments, getTopics to reduce code duplication.
+ */
+const paginatedLoadOptions = async (
+	loadOptionsFunctions: ILoadOptionsFunctions,
+	endpoint: string,
+): Promise<INodePropertyOptions[]> => {
+	const credentials = await loadOptionsFunctions.getCredentials('resendApi');
+	const apiKey = credentials.apiKey as string;
+	const returnData: INodePropertyOptions[] = [];
+	const limit = 100;
+	let after: string | undefined;
+	let hasMore = true;
+	let pageCount = 0;
+	const maxPages = 10;
+
+	while (hasMore) {
+		const qs: Record<string, string | number> = { limit };
+		if (after) {
+			qs.after = after;
+		}
+
+		const response = await loadOptionsFunctions.helpers.httpRequest({
+			url: `${RESEND_API_BASE}${endpoint}`,
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+			},
+			qs,
+			json: true,
+		});
+
+		const items = response?.data ?? [];
+		for (const item of items) {
+			if (!item?.id) {
+				continue;
+			}
+			const name = item.name ? `${item.name} (${item.id})` : item.id;
+			returnData.push({
+				name,
+				value: item.id,
+			});
+		}
+
+		hasMore = Boolean(response?.has_more);
+		after = items.length ? items[items.length - 1].id : undefined;
+		pageCount += 1;
+		if (!after || pageCount >= maxPages) {
+			break;
+		}
+	}
+
+	return returnData;
 };
 
 export const normalizeEmailList = (value: string | string[] | undefined) => {
@@ -251,152 +372,17 @@ export async function getTemplateVariables(
 export async function getTemplates(
 	this: ILoadOptionsFunctions,
 ): Promise<INodePropertyOptions[]> {
-	const credentials = await this.getCredentials('resendApi');
-	const apiKey = credentials.apiKey as string;
-	const returnData: INodePropertyOptions[] = [];
-	const limit = 100;
-	let after: string | undefined;
-	let hasMore = true;
-	let pageCount = 0;
-	const maxPages = 10;
-
-	while (hasMore) {
-		const qs: Record<string, string | number> = { limit };
-		if (after) {
-			qs.after = after;
-		}
-
-		const response = await this.helpers.httpRequest({
-			url: 'https://api.resend.com/templates',
-			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
-			},
-			qs,
-			json: true,
-		});
-
-		const templates = response?.data ?? [];
-		for (const template of templates) {
-			if (!template?.id) {
-				continue;
-			}
-			const name = template.name ? `${template.name} (${template.id})` : template.id;
-			returnData.push({
-				name,
-				value: template.id,
-			});
-		}
-
-		hasMore = Boolean(response?.has_more);
-		after = templates.length ? templates[templates.length - 1].id : undefined;
-		pageCount += 1;
-		if (!after || pageCount >= maxPages) {
-			break;
-		}
-	}
-
-	return returnData;
+	return paginatedLoadOptions(this, '/templates');
 }
 
 export async function getSegments(
 	this: ILoadOptionsFunctions,
 ): Promise<INodePropertyOptions[]> {
-	const credentials = await this.getCredentials('resendApi');
-	const apiKey = credentials.apiKey as string;
-	const returnData: INodePropertyOptions[] = [];
-	const limit = 100;
-	let after: string | undefined;
-	let hasMore = true;
-	let pageCount = 0;
-	const maxPages = 10;
-
-	while (hasMore) {
-		const qs: Record<string, string | number> = { limit };
-		if (after) {
-			qs.after = after;
-		}
-
-		const response = await this.helpers.httpRequest({
-			url: 'https://api.resend.com/segments',
-			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
-			},
-			qs,
-			json: true,
-		});
-
-		const segments = response?.data ?? [];
-		for (const segment of segments) {
-			if (!segment?.id) {
-				continue;
-			}
-			const name = segment.name ? `${segment.name} (${segment.id})` : segment.id;
-			returnData.push({
-				name,
-				value: segment.id,
-			});
-		}
-
-		hasMore = Boolean(response?.has_more);
-		after = segments.length ? segments[segments.length - 1].id : undefined;
-		pageCount += 1;
-		if (!after || pageCount >= maxPages) {
-			break;
-		}
-	}
-
-	return returnData;
+	return paginatedLoadOptions(this, '/segments');
 }
 
 export async function getTopics(
 	this: ILoadOptionsFunctions,
 ): Promise<INodePropertyOptions[]> {
-	const credentials = await this.getCredentials('resendApi');
-	const apiKey = credentials.apiKey as string;
-	const returnData: INodePropertyOptions[] = [];
-	const limit = 100;
-	let after: string | undefined;
-	let hasMore = true;
-	let pageCount = 0;
-	const maxPages = 10;
-
-	while (hasMore) {
-		const qs: Record<string, string | number> = { limit };
-		if (after) {
-			qs.after = after;
-		}
-
-		const response = await this.helpers.httpRequest({
-			url: 'https://api.resend.com/topics',
-			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
-			},
-			qs,
-			json: true,
-		});
-
-		const topics = response?.data ?? [];
-		for (const topic of topics) {
-			if (!topic?.id) {
-				continue;
-			}
-			const name = topic.name ? `${topic.name} (${topic.id})` : topic.id;
-			returnData.push({
-				name,
-				value: topic.id,
-			});
-		}
-
-		hasMore = Boolean(response?.has_more);
-		after = topics.length ? topics[topics.length - 1].id : undefined;
-		pageCount += 1;
-		if (!after || pageCount >= maxPages) {
-			break;
-		}
-	}
-
-	return returnData;
+	return paginatedLoadOptions(this, '/topics');
 }

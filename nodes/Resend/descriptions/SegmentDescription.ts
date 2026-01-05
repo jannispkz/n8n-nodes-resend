@@ -1,6 +1,5 @@
-import {
-	INodeProperties,
-} from 'n8n-workflow';
+import { INodeProperties } from 'n8n-workflow';
+import { createListOptions } from '../GenericFunctions';
 
 export const segmentOperations: INodeProperties[] = [
 	// SEGMENT OPERATIONS
@@ -79,33 +78,5 @@ export const segmentFields: INodeProperties[] = [
 		},
 		description: 'Select a segment or enter an ID using an expression. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 	},
-	{
-		displayName: 'List Options',
-		name: 'segmentListOptions',
-		type: 'collection',
-		placeholder: 'Add Option',
-		default: {},
-		displayOptions: {
-			show: {
-				resource: ['segments'],
-				operation: ['list'],
-			},
-		},
-		options: [
-			{
-				displayName: 'After',
-				name: 'after',
-				type: 'string',
-				default: '',
-				description: 'Return results after this segment ID',
-			},
-			{
-				displayName: 'Before',
-				name: 'before',
-				type: 'string',
-				default: '',
-				description: 'Return results before this segment ID',
-			},
-		],
-	},
+	createListOptions('segments', 'segment'),
 ];

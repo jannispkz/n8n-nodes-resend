@@ -1,6 +1,5 @@
-import {
-	INodeProperties,
-} from 'n8n-workflow';
+import { INodeProperties } from 'n8n-workflow';
+import { createListOptions } from '../GenericFunctions';
 
 export const templateOperations: INodeProperties[] = [
 	// TEMPLATE OPERATIONS
@@ -256,33 +255,5 @@ export const templateFields: INodeProperties[] = [
 			},
 		],
 	},
-	{
-		displayName: 'List Options',
-		name: 'templateListOptions',
-		type: 'collection',
-		placeholder: 'Add Option',
-		default: {},
-		displayOptions: {
-			show: {
-				resource: ['templates'],
-				operation: ['list'],
-			},
-		},
-		options: [
-			{
-				displayName: 'After',
-				name: 'after',
-				type: 'string',
-				default: '',
-				description: 'Return results after this template ID',
-			},
-			{
-				displayName: 'Before',
-				name: 'before',
-				type: 'string',
-				default: '',
-				description: 'Return results before this template ID',
-			},
-		],
-	},
+	createListOptions('templates', 'template'),
 ];

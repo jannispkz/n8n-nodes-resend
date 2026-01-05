@@ -1,6 +1,5 @@
-import {
-	INodeProperties,
-} from 'n8n-workflow';
+import { INodeProperties } from 'n8n-workflow';
+import { createListOptions } from '../GenericFunctions';
 
 export const contactOperations: INodeProperties[] = [
 	// CONTACT OPERATIONS
@@ -321,33 +320,5 @@ export const contactFields: INodeProperties[] = [
 			},
 		],
 	},
-	{
-		displayName: 'List Options',
-		name: 'contactListOptions',
-		type: 'collection',
-		placeholder: 'Add Option',
-		default: {},
-		displayOptions: {
-			show: {
-				resource: ['contacts'],
-				operation: ['list'],
-			},
-		},
-		options: [
-			{
-				displayName: 'After',
-				name: 'after',
-				type: 'string',
-				default: '',
-				description: 'Return results after this contact ID',
-			},
-			{
-				displayName: 'Before',
-				name: 'before',
-				type: 'string',
-				default: '',
-				description: 'Return results before this contact ID',
-			},
-		],
-	},
+	createListOptions('contacts', 'contact'),
 ];

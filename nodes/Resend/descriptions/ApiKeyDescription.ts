@@ -1,6 +1,5 @@
-import {
-	INodeProperties,
-} from 'n8n-workflow';
+import { INodeProperties } from 'n8n-workflow';
+import { createListOptions } from '../GenericFunctions';
 
 export const apiKeyOperations: INodeProperties[] = [
 	// API KEY OPERATIONS
@@ -102,33 +101,5 @@ export const apiKeyFields: INodeProperties[] = [
 		},
 		description: 'Restrict an API key to send emails only from a specific domain. This is only used when the permission is set to sending access.',
 	},
-	{
-		displayName: 'List Options',
-		name: 'apiKeyListOptions',
-		type: 'collection',
-		placeholder: 'Add Option',
-		default: {},
-		displayOptions: {
-			show: {
-				resource: ['apiKeys'],
-				operation: ['list'],
-			},
-		},
-		options: [
-			{
-				displayName: 'After',
-				name: 'after',
-				type: 'string',
-				default: '',
-				description: 'Return results after this API key ID',
-			},
-			{
-				displayName: 'Before',
-				name: 'before',
-				type: 'string',
-				default: '',
-				description: 'Return results before this API key ID',
-			},
-		],
-	},
+	createListOptions('apiKeys', 'API key'),
 ];

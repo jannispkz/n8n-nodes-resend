@@ -1,6 +1,5 @@
-import {
-	INodeProperties,
-} from 'n8n-workflow';
+import { INodeProperties } from 'n8n-workflow';
+import { createListOptions } from '../GenericFunctions';
 
 export const domainOperations: INodeProperties[] = [
 	// DOMAIN OPERATIONS
@@ -163,33 +162,5 @@ export const domainFields: INodeProperties[] = [
 			},
 		],
 	},
-	{
-		displayName: 'List Options',
-		name: 'domainListOptions',
-		type: 'collection',
-		placeholder: 'Add Option',
-		default: {},
-		displayOptions: {
-			show: {
-				resource: ['domains'],
-				operation: ['list'],
-			},
-		},
-		options: [
-			{
-				displayName: 'After',
-				name: 'after',
-				type: 'string',
-				default: '',
-				description: 'Return results after this domain ID',
-			},
-			{
-				displayName: 'Before',
-				name: 'before',
-				type: 'string',
-				default: '',
-				description: 'Return results before this domain ID',
-			},
-		],
-	},
+	createListOptions('domains', 'domain'),
 ];
