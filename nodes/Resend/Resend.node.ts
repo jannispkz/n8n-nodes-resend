@@ -1,4 +1,5 @@
 import {
+	IDataObject,
 	IExecuteFunctions,
 	INodeExecutionData,
 	INodeType,
@@ -530,7 +531,11 @@ export class Resend implements INodeType {
 						const listOptions = this.getNodeParameter('emailListOptions', i, {}) as ListOptions;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const limit = this.getNodeParameter('limit', i, 50) as number;
-						response = await requestList(this, 'https://api.resend.com/emails', listOptions, apiKey, i, returnAll, limit);
+						const items = await requestList(this, 'https://api.resend.com/emails', listOptions, apiKey, i, returnAll, limit);
+						for (const item of items) {
+							returnData.push({ json: item as IDataObject, pairedItem: { item: i } });
+						}
+						continue;
 
 					} else if (operation === 'retrieve') {
 						const emailId = this.getNodeParameter('emailId', i) as string;
@@ -622,7 +627,7 @@ export class Resend implements INodeType {
 						const listOptions = this.getNodeParameter('templateListOptions', i, {}) as ListOptions;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const limit = this.getNodeParameter('limit', i, 50) as number;
-						response = await requestList(
+						const items = await requestList(
 							this,
 							'https://api.resend.com/templates',
 							listOptions,
@@ -631,6 +636,10 @@ export class Resend implements INodeType {
 							returnAll,
 							limit,
 						);
+						for (const item of items) {
+							returnData.push({ json: item as IDataObject, pairedItem: { item: i } });
+						}
+						continue;
 					} else if (operation === 'update') {
 						const templateId = this.getNodeParameter('templateId', i) as string;
 						const updateFields = this.getNodeParameter('templateUpdateFields', i, {}) as any;
@@ -760,7 +769,11 @@ export class Resend implements INodeType {
 						const listOptions = this.getNodeParameter('domainListOptions', i, {}) as ListOptions;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const limit = this.getNodeParameter('limit', i, 50) as number;
-						response = await requestList(this, 'https://api.resend.com/domains', listOptions, apiKey, i, returnAll, limit);
+						const items = await requestList(this, 'https://api.resend.com/domains', listOptions, apiKey, i, returnAll, limit);
+						for (const item of items) {
+							returnData.push({ json: item as IDataObject, pairedItem: { item: i } });
+						}
+						continue;
 
 					} else if (operation === 'delete') {
 						const domainId = this.getNodeParameter('domainId', i) as string;
@@ -806,7 +819,11 @@ export class Resend implements INodeType {
 						const listOptions = this.getNodeParameter('apiKeyListOptions', i, {}) as ListOptions;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const limit = this.getNodeParameter('limit', i, 50) as number;
-						response = await requestList(this, 'https://api.resend.com/api-keys', listOptions, apiKey, i, returnAll, limit);
+						const items = await requestList(this, 'https://api.resend.com/api-keys', listOptions, apiKey, i, returnAll, limit);
+						for (const item of items) {
+							returnData.push({ json: item as IDataObject, pairedItem: { item: i } });
+						}
+						continue;
 
 					} else if (operation === 'delete') {
 						const apiKeyId = this.getNodeParameter('apiKeyId', i) as string;
@@ -945,7 +962,7 @@ export class Resend implements INodeType {
 						const listOptions = this.getNodeParameter('broadcastListOptions', i, {}) as ListOptions;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const limit = this.getNodeParameter('limit', i, 50) as number;
-						response = await requestList(
+						const items = await requestList(
 							this,
 							'https://api.resend.com/broadcasts',
 							listOptions,
@@ -954,6 +971,10 @@ export class Resend implements INodeType {
 							returnAll,
 							limit,
 						);
+						for (const item of items) {
+							returnData.push({ json: item as IDataObject, pairedItem: { item: i } });
+						}
+						continue;
 
 					} else if (operation === 'delete') {
 						const broadcastId = this.getNodeParameter('broadcastId', i) as string;
@@ -1002,7 +1023,11 @@ export class Resend implements INodeType {
 						const listOptions = this.getNodeParameter('segmentListOptions', i, {}) as ListOptions;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const limit = this.getNodeParameter('limit', i, 50) as number;
-						response = await requestList(this, 'https://api.resend.com/segments', listOptions, apiKey, i, returnAll, limit);
+						const items = await requestList(this, 'https://api.resend.com/segments', listOptions, apiKey, i, returnAll, limit);
+						for (const item of items) {
+							returnData.push({ json: item as IDataObject, pairedItem: { item: i } });
+						}
+						continue;
 
 					} else if (operation === 'delete') {
 						const segmentId = this.getNodeParameter('segmentId', i) as string;
@@ -1061,7 +1086,11 @@ export class Resend implements INodeType {
 						const listOptions = this.getNodeParameter('topicListOptions', i, {}) as ListOptions;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const limit = this.getNodeParameter('limit', i, 50) as number;
-						response = await requestList(this, 'https://api.resend.com/topics', listOptions, apiKey, i, returnAll, limit);
+						const items = await requestList(this, 'https://api.resend.com/topics', listOptions, apiKey, i, returnAll, limit);
+						for (const item of items) {
+							returnData.push({ json: item as IDataObject, pairedItem: { item: i } });
+						}
+						continue;
 
 					} else if (operation === 'update') {
 						const topicId = this.getNodeParameter('topicId', i) as string;
@@ -1205,7 +1234,11 @@ export class Resend implements INodeType {
 						const listOptions = this.getNodeParameter('contactListOptions', i, {}) as ListOptions;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const limit = this.getNodeParameter('limit', i, 50) as number;
-						response = await requestList(this, 'https://api.resend.com/contacts', listOptions, apiKey, i, returnAll, limit);
+						const items = await requestList(this, 'https://api.resend.com/contacts', listOptions, apiKey, i, returnAll, limit);
+						for (const item of items) {
+							returnData.push({ json: item as IDataObject, pairedItem: { item: i } });
+						}
+						continue;
 
 					} else if (operation === 'delete') {
 						const contactIdentifier = this.getNodeParameter('contactIdentifier', i) as string;
@@ -1274,7 +1307,11 @@ export class Resend implements INodeType {
 						const listOptions = this.getNodeParameter('contactPropertyListOptions', i, {}) as ListOptions;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const limit = this.getNodeParameter('limit', i, 50) as number;
-						response = await requestList(this, 'https://api.resend.com/contact-properties', listOptions, apiKey, i, returnAll, limit);
+						const items = await requestList(this, 'https://api.resend.com/contact-properties', listOptions, apiKey, i, returnAll, limit);
+						for (const item of items) {
+							returnData.push({ json: item as IDataObject, pairedItem: { item: i } });
+						}
+						continue;
 					} else if (operation === 'update') {
 						const contactPropertyId = this.getNodeParameter('contactPropertyId', i) as string;
 						const encodedContactPropertyId = encodeURIComponent(contactPropertyId);
@@ -1378,7 +1415,11 @@ export class Resend implements INodeType {
 						const listOptions = this.getNodeParameter('webhookListOptions', i, {}) as ListOptions;
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const limit = this.getNodeParameter('limit', i, 50) as number;
-						response = await requestList(this, 'https://api.resend.com/webhooks', listOptions, apiKey, i, returnAll, limit);
+						const items = await requestList(this, 'https://api.resend.com/webhooks', listOptions, apiKey, i, returnAll, limit);
+						for (const item of items) {
+							returnData.push({ json: item as IDataObject, pairedItem: { item: i } });
+						}
+						continue;
 					} else if (operation === 'update') {
 						const webhookId = this.getNodeParameter('webhookId', i) as string;
 						const encodedWebhookId = encodeURIComponent(webhookId);

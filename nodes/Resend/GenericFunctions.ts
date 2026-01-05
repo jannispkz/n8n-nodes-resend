@@ -174,6 +174,10 @@ export const buildTemplateSendVariables = (
 	return Object.keys(variables).length ? variables : undefined;
 };
 
+/**
+ * Fetch list items with pagination support.
+ * Returns an array of items (not the wrapper object), matching other n8n nodes like Stripe.
+ */
 export const requestList = async (
 	executeFunctions: IExecuteFunctions,
 	url: string,
@@ -182,7 +186,7 @@ export const requestList = async (
 	itemIndex: number,
 	returnAll: boolean,
 	limit?: number,
-) => {
+): Promise<unknown[]> => {
 	if (listOptions.after && listOptions.before) {
 		throw new NodeOperationError(
 			executeFunctions.getNode(),
@@ -216,7 +220,6 @@ export const requestList = async (
 	const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 	const allItems: unknown[] = [];
-	let lastResponse: unknown;
 	let hasMore = true;
 	let isFirstRequest = true;
 	let paginationMode: 'after' | 'before' | undefined = listOptions.before ? 'before' : undefined;
@@ -228,9 +231,9 @@ export const requestList = async (
 		}
 		isFirstRequest = false;
 
-		lastResponse = await requestPage();
-		const responseData = Array.isArray((lastResponse as { data?: unknown[] }).data)
-			? ((lastResponse as { data?: unknown[] }).data as unknown[])
+		const response = await requestPage();
+		const responseData = Array.isArray((response as { data?: unknown[] }).data)
+			? ((response as { data?: unknown[] }).data as unknown[])
 			: [];
 		allItems.push(...responseData);
 
@@ -239,7 +242,7 @@ export const requestList = async (
 			break;
 		}
 
-		hasMore = Boolean((lastResponse as { has_more?: boolean }).has_more);
+		hasMore = Boolean((response as { has_more?: boolean }).has_more);
 		if (!hasMore || responseData.length === 0) {
 			break;
 		}
@@ -259,16 +262,8 @@ export const requestList = async (
 		}
 	}
 
-	// Slice to exact limit
-	const finalData = allItems.slice(0, targetLimit);
-
-	if (lastResponse && Array.isArray((lastResponse as { data?: unknown[] }).data)) {
-		(lastResponse as { data: unknown[] }).data = finalData;
-		(lastResponse as { has_more?: boolean }).has_more = false;
-		return lastResponse;
-	}
-
-	return { object: 'list', data: finalData, has_more: false };
+	// Return just the items array, sliced to exact limit
+	return allItems.slice(0, targetLimit);
 };
 
 export async function getTemplateVariables(
