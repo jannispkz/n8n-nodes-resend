@@ -262,9 +262,14 @@ export class Resend implements INodeType {
 							{
 								displayName: 'Key',
 								name: 'key',
-								type: 'string',
+								type: 'options',
 								required: true,
 								default: '',
+								typeOptions: {
+									loadOptionsMethod: 'getTemplateVariables',
+									loadOptionsDependsOn: ['emailTemplateId'],
+									allowCustomValues: true,
+								},
 								description: 'Template variable name',
 							},
 							{
@@ -775,9 +780,14 @@ export class Resend implements INodeType {
 											{
 												displayName: 'Key',
 												name: 'key',
-												type: 'string',
+												type: 'options',
 												required: true,
 												default: '',
+												typeOptions: {
+													loadOptionsMethod: 'getTemplateVariables',
+													loadOptionsDependsOn: ['templateId'],
+													allowCustomValues: true,
+												},
 												description: 'Template variable name',
 											},
 											{
@@ -1236,9 +1246,14 @@ export class Resend implements INodeType {
 							{
 								displayName: 'Key',
 								name: 'key',
-								type: 'string',
+								type: 'options',
 								required: true,
 								default: '',
+								typeOptions: {
+									loadOptionsMethod: 'getTemplateVariables',
+									loadOptionsDependsOn: ['templateId'],
+									allowCustomValues: true,
+								},
 								description: 'Template variable name',
 							},
 							{
@@ -2577,6 +2592,71 @@ export class Resend implements INodeType {
 	};
 	methods = {
 		loadOptions: {
+			async getTemplateVariables(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const getStringValue = (value: unknown) =>
+					typeof value === 'string' && value.trim() ? value : undefined;
+				const safeGet = (getter: () => unknown) => {
+					try {
+						return getter();
+					} catch {
+						return undefined;
+					}
+				};
+				const getParameterValue = (name: string) => {
+					const currentParameters = this.getCurrentNodeParameters();
+					const fromCurrentParameters = getStringValue(currentParameters?.[name]);
+					if (fromCurrentParameters) {
+						return fromCurrentParameters;
+					}
+
+					const fromCurrentNodeParameter = getStringValue(
+						safeGet(() => this.getCurrentNodeParameter(name)),
+					);
+					if (fromCurrentNodeParameter) {
+						return fromCurrentNodeParameter;
+					}
+
+					const fromNodeParameter = getStringValue(safeGet(() => this.getNodeParameter(name, '')));
+					if (fromNodeParameter) {
+						return fromNodeParameter;
+					}
+
+					return undefined;
+				};
+
+				const templateId = getParameterValue('emailTemplateId') ?? getParameterValue('templateId');
+				if (!templateId) {
+					return [];
+				}
+				const normalizedTemplateId = templateId.trim();
+				if (normalizedTemplateId.startsWith('={{') || normalizedTemplateId.includes('{{')) {
+					return [];
+				}
+
+				const credentials = await this.getCredentials('resendApi');
+				const apiKey = credentials.apiKey as string;
+
+				const response = await this.helpers.httpRequest({
+					url: `https://api.resend.com/templates/${encodeURIComponent(templateId)}`,
+					method: 'GET',
+					headers: {
+						Authorization: `Bearer ${apiKey}`,
+					},
+					json: true,
+				});
+
+				const variables = response?.variables ?? [];
+
+				return variables
+					.filter((variable: { key?: string }) => variable?.key)
+					.map((variable: { key: string; type?: string }) => {
+						const typeLabel = variable.type ? ` (${variable.type})` : '';
+						return {
+							name: `${variable.key}${typeLabel}`,
+							value: variable.key,
+						};
+					});
+			},
 			async getTemplates(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 				const credentials = await this.getCredentials('resendApi');
 				const apiKey = credentials.apiKey as string;
