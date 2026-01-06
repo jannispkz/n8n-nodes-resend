@@ -1,7 +1,7 @@
 {
-  "name": "n8n-nodes-resend-revived",
+  "name": "n8n-nodes-resend-complete",
   "version": "2.0.0",
-  "description": "Resend n8n node",
+  "description": "Complete Resend integration for n8n with full API coverage: Email, Broadcasts, Templates, Domains, Contacts, Segments, Topics, Webhooks, and more",
   "keywords": [
     "n8n-community-node-package",
     "resend",
@@ -9,13 +9,16 @@
     "webhook",
     "n8n",
     "automation",
-    "integration"
+    "integration",
+    "broadcast",
+    "template",
+    "contacts"
   ],
   "license": "MIT",
   "homepage": "https://github.com/jannispkz/n8n-nodes-resend/",
   "author": {
-    "name": "SilkePilon",
-    "email": "silkepilon@users.noreply.github.com"
+    "name": "jannispkz",
+    "email": "jannispkz@gmail.com"
   },
   "repository": {
     "type": "git",
