@@ -399,36 +399,71 @@ export class Resend implements INodeType {
 							}
 							const attachments = additionalOptions.attachments ?? email.attachments;
 							if (attachments?.attachments?.length) {
-								emailObj.attachments = attachments.attachments.map((attachment: any) => {
-									const binaryPropertyName = attachment.binaryPropertyName || 'data';
-									const binaryData = items[i].binary?.[binaryPropertyName];
-									if (!binaryData) {
-										throw new NodeOperationError(
-											this.getNode(),
-											`Binary property "${binaryPropertyName}" not found in item ${i}`,
-											{ itemIndex: i },
-										);
-									}
-									if (!attachment.filename) {
-										throw new NodeOperationError(
-											this.getNode(),
-											'File Name is required for batch email attachments.',
-											{ itemIndex: i },
-										);
-									}
+								emailObj.attachments = attachments.attachments
+									.map((attachment: any) => {
+										const contentId = attachment.content_id;
+										const contentType = attachment.content_type;
+										const attachmentType = attachment.attachmentType ?? 'binaryData';
 
-									const attachmentEntry: Record<string, unknown> = {
-										filename: attachment.filename,
-										content: binaryData.data,
-									};
-									if (attachment.content_id) {
-										attachmentEntry.content_id = attachment.content_id;
-									}
-									if (attachment.content_type) {
-										attachmentEntry.content_type = attachment.content_type;
-									}
-									return attachmentEntry;
-								});
+										if (attachmentType === 'binaryData') {
+											const binaryPropertyName = attachment.binaryPropertyName || 'data';
+											const binaryData = items[i].binary?.[binaryPropertyName];
+											if (!binaryData) {
+												throw new NodeOperationError(
+													this.getNode(),
+													`Binary property "${binaryPropertyName}" not found in item ${i}`,
+													{ itemIndex: i },
+												);
+											}
+											if (!attachment.filename) {
+												throw new NodeOperationError(
+													this.getNode(),
+													'File Name is required for batch email attachments.',
+													{ itemIndex: i },
+												);
+											}
+
+											const attachmentEntry: Record<string, unknown> = {
+												filename: attachment.filename,
+												content: binaryData.data,
+											};
+											if (contentId) {
+												attachmentEntry.content_id = contentId;
+											}
+											if (contentType) {
+												attachmentEntry.content_type = contentType;
+											}
+											return attachmentEntry;
+										} else if (attachmentType === 'url') {
+											if (!attachment.filename) {
+												throw new NodeOperationError(
+													this.getNode(),
+													'File Name is required for URL attachments.',
+													{ itemIndex: i },
+												);
+											}
+											if (!attachment.fileUrl) {
+												throw new NodeOperationError(
+													this.getNode(),
+													'File URL is required for URL attachments.',
+													{ itemIndex: i },
+												);
+											}
+											const attachmentEntry: Record<string, unknown> = {
+												filename: attachment.filename,
+												path: attachment.fileUrl,
+											};
+											if (contentId) {
+												attachmentEntry.content_id = contentId;
+											}
+											if (contentType) {
+												attachmentEntry.content_type = contentType;
+											}
+											return attachmentEntry;
+										}
+										return null;
+									})
+									.filter((attachment: any) => attachment !== null);
 							}
 							const headersInput = additionalOptions.headers ?? email.headers;
 							if (headersInput?.headers?.length) {
